@@ -1,0 +1,19 @@
+{
+  "name": "vector-concepts",
+  "version": "1.0.0",
+  "description": "experimenting with vector math",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sean-codes/vector-concepts.git"
+  },
+  "author": "sean codes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sean-codes/vector-concepts/issues"
+  },
+  "homepage": "https://github.com/sean-codes/vector-concepts#readme"
+}
