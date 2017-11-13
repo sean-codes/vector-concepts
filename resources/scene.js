@@ -2,6 +2,8 @@ class Scene {
    constructor(canvas) {
       this.canvas = canvas
       this.ctx = this.canvas.getContext('2d')
+      this.width = this.canvas.width
+      this.height = this.canvas.height
       this.speed = 1000/60
       this.interval = undefined
       this.shapes = []
@@ -30,11 +32,12 @@ class Scene {
 
    drawShape(shape) {
       this.ctx.beginPath()
+      this.ctx.moveTo(shape.pos.x, shape.pos.y)
+      // Line to each side
       for(var side of shape.sides){
-         //console.log(side.p1)
-         this.ctx.moveTo(side.p1.x, side.p1.y)
          this.ctx.lineTo(side.p2.x, side.p2.y)
       }
+
       this.ctx.stroke()
    }
 }

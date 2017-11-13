@@ -1,14 +1,24 @@
 class Polygon {
    constructor(x, y){
       this.pos = new Vector(x, y)
+      this.direction = new Vector(0, 0)
       this.sides = []
    }
 
-   move(vect) {
+   setPos(vect){
+      this.pos = vect
+   }
+
+   move() {
+      this.pos.add(this.direction)
       for(var side of this.sides) {
-         side.p1.add(vect)
-         side.p2.add(vect)
+         side.p1.add(this.direction)
+         side.p2.add(this.direction)
       }
+   }
+
+   reverse() {
+
    }
 
    rotate() {
