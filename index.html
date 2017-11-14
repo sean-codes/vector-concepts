@@ -9,6 +9,32 @@
       <script src="resources/scene.js"></script>
       <script src="resources/vector.js"></script>
       <script src="resources/shapes.js"></script>
-      <script src="experiment.js"></script>
+      <script src="experiment/bounce.js"></script>
+      <script>
+
+         var options = [
+            { title: 'bounce', src: '/experiment/bounce.js' }
+         ]
+
+         for(var option of options){
+            console.log(option)
+
+            var path = location.href.replace(window.location.hash, '')
+            var scriptSrc = path.replace('/index.html', '') + option.src
+            console.log(path)
+            document.body.innerHTML += `<a onclick="location.reload()" href='${path}#${scriptSrc}'>${option.title}</a>`;
+         }
+
+         function load(){
+
+         }
+         if(location.hash.length > 0){
+            console.log('wtf')
+            var script = document.createElement('script')
+            script.src = location.hash.replace('#', '')
+            document.body.appendChild(script)
+         }
+
+      </script>
    </body>
 </html>

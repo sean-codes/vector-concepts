@@ -1,4 +1,4 @@
-class Polygon {
+class Shape {
    constructor(x, y){
       this.pos = new Vector(x, y)
       this.direction = new Vector(0, 0)
@@ -26,7 +26,17 @@ class Polygon {
    }
 }
 
-class Square extends Polygon {
+class Line extends Shape {
+   constructor(x, y, x2, y2){
+      super(x, y)
+
+      this.sides = [
+         { p1: new Vector(x, y), p2: new Vector(x2, y2) }
+      ]
+   }
+}
+
+class Square extends Shape {
    constructor(x, y, size){
       super(x, y)
 
@@ -41,6 +51,6 @@ class Square extends Polygon {
    }
 }
 
-class Triangle extends Polygon {
+class Triangle extends Shape {
 
 }
