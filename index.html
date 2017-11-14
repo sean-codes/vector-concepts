@@ -11,30 +11,26 @@
       <script src="resources/shapes.js"></script>
       <script src="experiment/bounce.js"></script>
       <script>
-
-         var options = [
+         // Add more experiments here!
+         var experiments = [
             { title: 'bounce', src: '/experiment/bounce.js' }
          ]
 
-         for(var option of options){
-            console.log(option)
+         // Some interesting manuevering
+         document.body.onload = function() {
+            for(var experiment of experiments){
+               var path = location.href.replace(location.hash, '')
+               var scriptSrc = path.replace('/index.html', '') + experiment.src
+               var selected = location.hash.includes(experiment.src)
+               document.body.innerHTML += `<a onclick="location.reload()" href='${path}#${scriptSrc}'>${experiment.title}</a>`;
+            }
 
-            var path = location.href.replace(window.location.hash, '')
-            var scriptSrc = path.replace('/index.html', '') + option.src
-            console.log(path)
-            document.body.innerHTML += `<a onclick="location.reload()" href='${path}#${scriptSrc}'>${option.title}</a>`;
+            if(location.hash.length > 0){
+               var script = document.createElement('script')
+               script.src = location.hash.replace('#', '')
+               document.body.appendChild(script)
+            }
          }
-
-         function load(){
-
-         }
-         if(location.hash.length > 0){
-            console.log('wtf')
-            var script = document.createElement('script')
-            script.src = location.hash.replace('#', '')
-            document.body.appendChild(script)
-         }
-
       </script>
    </body>
 </html>
