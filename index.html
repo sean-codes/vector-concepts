@@ -21,8 +21,8 @@
             for(var experiment of experiments){
                var path = location.href.replace(location.hash, '')
                var scriptSrc = path.replace('/index.html', '') + experiment.src
-               var selected = location.hash.includes(experiment.src)
-               document.body.innerHTML += `<a onclick="location.reload()" href='${path}#${scriptSrc}'>${experiment.title}</a> `;
+               var selected = location.hash.includes(experiment.src) ? 'active' : ''
+               document.body.innerHTML += `<a class="${selected}" onclick="location.reload()" href='${path}#${scriptSrc}'>${experiment.title}</a> `;
             }
 
             if(location.hash.length > 0){
