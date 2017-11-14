@@ -7,6 +7,12 @@ class Shape {
 
    setPos(vect){
       this.pos = vect
+      return this
+   }
+
+   setDirection(vect){
+      this.direction = vect
+      return this
    }
 
    move() {
@@ -23,6 +29,17 @@ class Shape {
 
    rotate() {
 
+   }
+
+   draw(ctx) {
+      ctx.beginPath()
+      ctx.moveTo(this.pos.x, this.pos.y)
+      // Line to each side
+      for(var side of this.sides){
+         ctx.lineTo(side.p2.x, side.p2.y)
+      }
+
+      ctx.stroke()
    }
 }
 
@@ -51,6 +68,19 @@ class Square extends Shape {
    }
 }
 
-class Triangle extends Shape {
+class Circle extends Shape{
+   constructor(x, y, radius) {
+      super(x, y)
+      this.radius = radius
+   }
 
+   move() {
+      this.pos.add(this.direction)
+   }
+
+   draw(ctx) {
+      ctx.beginPath()
+      ctx.arc(this.pos.x, this.pos.y, this.radius, 0, 2*Math.PI);
+      ctx.stroke()
+   }
 }
