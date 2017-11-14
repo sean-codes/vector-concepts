@@ -12,7 +12,8 @@
       <script>
          // Add more experiments here!
          var experiments = [
-            { title: 'bounce', src: '/experiments/bounce.js' }
+            { title: 'bounce', src: '/experiments/bounce.js' },
+            { title: 'UNIT Circle', src: '/experiments/unitcircle.js' }
          ]
 
          // Some interesting manuevering
@@ -21,7 +22,7 @@
                var path = location.href.replace(location.hash, '')
                var scriptSrc = path.replace('/index.html', '') + experiment.src
                var selected = location.hash.includes(experiment.src)
-               document.body.innerHTML += `<a onclick="location.reload()" href='${path}#${scriptSrc}'>${experiment.title}</a>`;
+               document.body.innerHTML += `<a onclick="location.reload()" href='${path}#${scriptSrc}'>${experiment.title}</a> `;
             }
 
             if(location.hash.length > 0){

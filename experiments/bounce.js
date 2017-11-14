@@ -2,11 +2,8 @@ var scene = new Scene(document.querySelector('canvas'))
 
 // Create and Step event
 scene.create = function(){
-   var square = new Square(0, 0, 20)
-   var line = new Line(20, 20, 100, 20)
-   square.direction = new Vector(1, 1)
+   var square = new Square(0, 0, 20).setDirection(new Vector(1, 1))
    this.addShape(square)
-   this.addShape(line)
 }
 
 scene.step = function(){
