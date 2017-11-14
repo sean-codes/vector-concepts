@@ -31,13 +31,6 @@ class Scene {
    }
 
    drawShape(shape) {
-      this.ctx.beginPath()
-      this.ctx.moveTo(shape.pos.x, shape.pos.y)
-      // Line to each side
-      for(var side of shape.sides){
-         this.ctx.lineTo(side.p2.x, side.p2.y)
-      }
-
-      this.ctx.stroke()
+      shape.draw(this.ctx)
    }
 }
