@@ -34,6 +34,10 @@ class Vector {
       return this.x * vect.x + this.y * vect.y
    }
 
+	det(vect) {
+		return this.x * vect.x - this.y * vect.y
+	}
+
    cross() {
 
    }

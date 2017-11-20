@@ -1,16 +1,18 @@
-const sinColor = '#5D9'
-const cosColor = '#D45'
+const colorSin = '#5D9'
+const colorCos = '#D45'
+const colorBorder = '#999'
+const colorBackground = '#222'
 const canvas = document.querySelector('canvas')
-canvas.style.background = '#222'
+canvas.style.background = colorBackground
 var scene = new Scene(canvas)
 var line = new Line(scene.width/2, scene.height/2, scene.width/2+50, scene.height/2)
 var unitCircle = new Circle(scene.width/2, scene.height/2, 50)
 var circleSin = new Circle(0, 0, 5)
 var circleCos = new Circle(0, 0, 5)
-line.colorStroke = '#999'
-unitCircle.colorStroke = '#999'
-circleSin.colorFill = sinColor
-circleCos.colorFill = cosColor
+line.colorStroke = colorBorder
+unitCircle.colorStroke = colorBorder
+circleSin.colorFill = colorSin
+circleCos.colorFill = colorCos
 
 scene.addShape(unitCircle)
 scene.addShape(circleSin)
@@ -28,7 +30,10 @@ scene.step = function(){
 	var vertical = new Vector(0, 1)
 	var center = new Vector(this.width/2, this.height/2)
 	var mousedir = this.mousepos.clone().min(center).normalize()
+	var angle = Math.acos(horizontal.dot(mousedir)) * 180/Math.PI
+	angle = mousedir.y < 0 ? angle : 180 + 180 - angle
 
+	// Move points around
 	circleSin.points[0].x = mousedir.x*50 + this.width/2
 	circleSin.points[0].y = this.height/2
 
@@ -36,12 +41,12 @@ scene.step = function(){
 	circleCos.points[0].y = mousedir.y*50 + this.height/2
 
 	this.ctx.font = '14px Monospace'
-	this.ctx.fillStyle = '#222'
-	this.ctx.fillRect(0, 0, 275, 50)
-	this.ctx.fillStyle = '#D45'
-	this.ctx.fillText('Sin: ' + mousedir.x, 20, 20)
-	this.ctx.fillStyle = '#5D9'
-	this.ctx.fillText('Cos: ' + mousedir.y, 20, 40)
+	this.ctx.fillStyle = colorSin
+	this.ctx.fillText('Cos: ' + Math.round(mousedir.x*1000)/1000, 10, 20)
+	this.ctx.fillStyle = colorCos
+	this.ctx.fillText('Sin: ' + Math.round(mousedir.y*1000)/1000, 10, 40)
+	this.ctx.fillStyle = '#999'
+	this.ctx.fillText('Angle: ' + Math.round(angle*1000)/1000, 10, 60)
 }
 
 // Startup!
