@@ -3,6 +3,8 @@ class Shape {
       this.points = []
       this.direction = new Vector(0, 0)
       this.sides = []
+		this.colorFill = 'transparent'
+		this.colorStroke = '#000'
    }
 
    setPos(vect){
@@ -37,6 +39,10 @@ class Shape {
       }
 
       ctx.closePath()
+
+		ctx.fillStyle = this.colorFill
+		ctx.fill()
+		ctx.strokeStyle = this.colorStroke
       ctx.stroke()
    }
 }
@@ -84,6 +90,11 @@ class Circle extends Shape{
    draw(ctx) {
       ctx.beginPath()
       ctx.arc(this.points[0].x, this.points[0].y, this.radius, 0, 2*Math.PI);
+		if(this.colorFill){
+			ctx.fillStyle = this.colorFill
+			ctx.fill()
+		}
+		ctx.strokeStyle = this.colorStroke
       ctx.stroke()
    }
 }
