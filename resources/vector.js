@@ -1,12 +1,26 @@
 class Vector {
    constructor(x, y) {
+      this.setX(x)
+      this.setY(y)
+   }
+
+   setX(x) {
       this.x = x
+   }
+
+   setY(y) {
       this.y = y
    }
 
    add(vect) {
       this.x += vect.x
       this.y += vect.y
+      return this
+   }
+
+   min(vect) {
+      this.x -= vect.x
+      this.y -= vect.y
       return this
    }
 
