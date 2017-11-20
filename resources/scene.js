@@ -7,15 +7,21 @@ class Scene {
       this.speed = 1000/60
       this.interval = undefined
       this.shapes = []
+
+      this.mousepos = new Vector(0, 0)
+      this.listen()
    }
 
-   create(){}
+   listen(){
+      this.canvas.addEventListener('mousemove', (e) => {
+         this.mousemove(e.layerX, e.layerY)
+      })
+   }
 
    step(){}
 
    start(){
-      this.create()
-      this.interval = setInterval(this.step, this.speed)
+      this.interval = setInterval(() => { this.step() }, this.speed)
    }
 
    stop(){
@@ -33,4 +39,10 @@ class Scene {
    drawShape(shape) {
       shape.draw(this.ctx)
    }
+
+   mousemove(x, y) {
+      this.mousepos.setX(x)
+      this.mousepos.setY(y)
+   }
+
 }
