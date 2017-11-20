@@ -1,10 +1,9 @@
 var scene = new Scene(document.querySelector('canvas'))
 
 // Create and Step event
-scene.create = function(){
-   var square = new Square(0, 0, 20).setDirection(new Vector(1, 1))
-   this.addShape(square)
-}
+var square = new Square(0, 0, 20).setDirection(new Vector(1, 1))
+scene.addShape(square)
+
 
 scene.step = function(){
    scene.clear()
@@ -13,11 +12,11 @@ scene.step = function(){
       scene.drawShape(shape)
 
       shape.move()
-      if(shape.pos.x + shape.width > scene.width || shape.pos.x < 0){
+      if(shape.points[0].x + shape.width > scene.width || shape.points[0].x < 0){
          // bounce
          shape.direction.x *= -1
       }
-      if(shape.pos.y + shape.height > scene.height || shape.pos.y < 0){
+      if(shape.points[0].y + shape.height > scene.height || shape.points[0].y < 0){
          shape.direction.y *= -1
       }
    }
