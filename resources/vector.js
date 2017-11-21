@@ -57,4 +57,8 @@ class Vector {
    clone() {
       return new Vector(this.x, this.y)
    }
+
+   direction() {
+      return 180 + Math.atan2(this.y, this.x*-1) * 180/Math.PI
+   }
 }

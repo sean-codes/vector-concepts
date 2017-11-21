@@ -17,7 +17,7 @@ circleCos.colorFill = colorCos
 scene.addShape(unitCircle)
 scene.addShape(circleSin)
 scene.addShape(circleCos)
-//scene.addShape(line)
+scene.addShape(line)
 
 scene.step = function(){
    scene.clear()
@@ -30,9 +30,12 @@ scene.step = function(){
 	var vertical = new Vector(0, 1)
 	var center = new Vector(this.width/2, this.height/2)
 	var mousedir = this.mousepos.clone().min(center).normalize()
-	var angle = Math.acos(horizontal.dot(mousedir)) * 180/Math.PI
-	angle = mousedir.y < 0 ? angle : 180 + 180 - angle
+	var direction = mousedir.direction()
 
+   this.ctx.beginPath()
+   this.ctx.strokeStyle = '#999';
+   this.ctx.arc(center.x, center.y, 30, 0, -direction/(180/Math.PI), true)
+   this.ctx.stroke()
 	// Move points around
 	circleSin.points[0].x = mousedir.x*50 + this.width/2
 	circleSin.points[0].y = this.height/2
@@ -46,7 +49,13 @@ scene.step = function(){
 	this.ctx.fillStyle = colorCos
 	this.ctx.fillText('Sin: ' + Math.round(mousedir.y*1000)/1000, 10, 40)
 	this.ctx.fillStyle = '#999'
-	this.ctx.fillText('Angle: ' + Math.round(angle*1000)/1000, 10, 60)
+	this.ctx.fillText('Dir: ' + Math.round(direction*1000)/1000, 10, 60)
+   this.ctx.beginPath()
+   this.ctx.moveTo(center.x, center.y)
+   this.ctx.lineTo(mousedir.x*50 + center.x, mousedir.y*50+center.y)
+   this.ctx.fillStyle = '#999'
+   this.ctx.closePath()
+   this.ctx.stroke()
 }
 
 // Startup!
