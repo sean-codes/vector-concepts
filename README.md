@@ -15,6 +15,20 @@
 
 ## 📙 Journal
 
+#### Radians
+Half of a circle = 180deg or `Math.PI` radians. A entire circle is 360deg or `Math.PI*2` radians. That is 6.28 radians in a circle. In a unit circle the circumference if equal to Math.PI*2
+
+Radian to Degree
+
+```js
+   var deg = rad * 180/Math.PI
+```
+
+Degree to Radian
+```js
+   var rad = deg * Math.PI/180
+```
+
 #### Cartesian vs Polar Coordinates
 If you use the x- and y-coordinates, you are using Cartesian coordinates. If you use the angle and length of the vector, you are using polar coordinates.
 

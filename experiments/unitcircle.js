@@ -6,8 +6,8 @@ var scene = new Scene(document.querySelector('canvas'))
 var vCenter = new Vector(scene.width/2, scene.height/2)
 var circleUnit = new Circle(vCenter.x, vCenter.y, 50)
 var circleSin = new Circle(vCenter.x, vCenter.y, 3)
-circleSin.colorFill = colorRed
 var circleCos = new Circle(vCenter.x, vCenter.y, 3)
+circleSin.colorFill = colorRed
 circleCos.colorFill = colorGreen
 
 scene.addShape(circleUnit)
@@ -37,6 +37,7 @@ scene.step = function(){
    this.ctx.lineTo(mouseDir.x*50+ vCenter.x, mouseDir.y*50 + vCenter.y)
    this.ctx.stroke()
 
+   console.log(mouseDirDegree / (180/Math.PI))
    // Info
    this.ctx.font = '16px Monospace'
    this.ctx.fillText('cos: ' + Math.round(mouseDir.x*1000)/1000, 10, 20)
