@@ -1,18 +1,23 @@
 var colorRed = '#F22'
 var colorGreen = '#465'
+var colorBlue = '#45B'
 var colorGrey = '#999'
+var colorBlack = '#111'
 
 var scene = new Scene(document.querySelector('canvas'))
 var vCenter = new Vector(scene.width/2, scene.height/2)
 var circleUnit = new Circle(vCenter.x, vCenter.y, 50)
 var circleSin = new Circle(vCenter.x, vCenter.y, 3)
 var circleCos = new Circle(vCenter.x, vCenter.y, 3)
-circleSin.colorFill = colorRed
-circleCos.colorFill = colorGreen
+var circleTan = new Circle(vCenter.x, vCenter.y, 3)
+circleTan.colorFill = colorBlue
+circleCos.colorFill = colorRed
+circleSin.colorFill = colorGreen
 
 scene.addShape(circleUnit)
 scene.addShape(circleSin)
 scene.addShape(circleCos)
+scene.addShape(circleTan)
 
 scene.step = function(){
    scene.clear()
@@ -23,8 +28,8 @@ scene.step = function(){
    var mouseDirDegree = mouseDir.direction()
 
    // Move Sin/Cos
-   circleSin.points[0].x = mouseDir.x * 50 + vCenter.x
-   circleCos.points[0].y = mouseDir.y * 50 + vCenter.y
+   circleSin.points[0].y = mouseDir.y * 50 + vCenter.y
+   circleCos.points[0].x = mouseDir.x * 50 + vCenter.x
 
    // Draw angle
    this.ctx.beginPath()
@@ -37,9 +42,10 @@ scene.step = function(){
    this.ctx.lineTo(mouseDir.x*50+ vCenter.x, mouseDir.y*50 + vCenter.y)
    this.ctx.stroke()
 
-   console.log(mouseDirDegree / (180/Math.PI))
+
    // Info
    this.ctx.font = '16px Monospace'
+	this.ctx.fillStyle = colorBlack
    this.ctx.fillText('cos: ' + Math.round(mouseDir.x*1000)/1000, 10, 20)
    this.ctx.fillText('sin: ' + Math.round(mouseDir.y*1000)/1000, 10, 40)
    this.ctx.fillText('dir: ' + Math.round(mouseDirDegree*1000)/1000, 10, 60)

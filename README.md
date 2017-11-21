@@ -44,3 +44,4 @@ Getting the X/Y coordiantes from length and angle ( Converting Polar to Cartesia
 - http://www.helixsoft.nl/articles/circle/sincos.htm
 - https://www.khanacademy.org/math/trigonometry
 - http://www-groups.dcs.st-and.ac.uk/history/HistTopics/Trigonometric_functions.html
+- https://betterexplained.com/articles/intuitive-trigonometry/
