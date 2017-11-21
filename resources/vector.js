@@ -59,6 +59,6 @@ class Vector {
    }
 
    direction() {
-      return 180 + Math.atan2(this.y, this.x*-1) * 180/Math.PI
+      return 180 + Math.atan2(this.y*-1, this.x*-1) * 180/Math.PI
    }
 }
