@@ -44,5 +44,4 @@ class Scene {
       this.mousepos.setX(x)
       this.mousepos.setY(y)
    }
-
 }
