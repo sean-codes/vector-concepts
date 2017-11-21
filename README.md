@@ -3,22 +3,22 @@
 
 ![Example GIF](https://raw.githubusercontent.com/sean-codes/vector-concepts/master/example.gif?v=2)
 
-## Objects
+## ⚔️ Gear
 - Vector.js - 2D Vector Math
 - Scene.js - Holds the scene for drawing and handling input events
 - Shape.js - Constructor for storing shape points and how to draw each
 
-## Explored
+## 🗺 Explored
 - Scene setup / Loop
 - Basic Vector Setup ( Adding, Subtracting, Scale, Distance )
 - Dot Product
 
-## Notes
+## 📙 Journal
 
 #### Cartesian vs Polar Coordinates
 If you use the x- and y-coordinates, you are using Cartesian coordinates. If you use the angle and length of the vector, you are using polar coordinates.
 
-## Additional Resources
+## 📚 Library 
 - http://blog.wolfire.com/2009/07/linear-algebra-for-game-developers-part-1/
 - http://www.helixsoft.nl/articles/circle/sincos.htm
 - https://www.khanacademy.org/math/trigonometry
