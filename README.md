@@ -18,6 +18,12 @@
 #### Cartesian vs Polar Coordinates
 If you use the x- and y-coordinates, you are using Cartesian coordinates. If you use the angle and length of the vector, you are using polar coordinates.
 
+Getting the X/Y coordiantes from Polar
+``` js
+    // To get the x and y cordinate of length and angle
+    var x = radius * Math.cos(angle / (180/Math.PI))
+    var y = radius * Math.sin(angle / (180/Math.PI))
+```
 ## Additional Resources
 - http://blog.wolfire.com/2009/07/linear-algebra-for-game-developers-part-1/
 - http://www.helixsoft.nl/articles/circle/sincos.htm
