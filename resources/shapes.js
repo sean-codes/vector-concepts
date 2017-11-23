@@ -108,10 +108,6 @@ class Circle extends Shape{
       ]
    }
 
-   move() {
-      this.pos.add(this.direction)
-   }
-
    draw(ctx) {
       ctx.beginPath()
       ctx.arc(this.points[0].x, this.points[0].y, this.radius, 0, 2*Math.PI);
