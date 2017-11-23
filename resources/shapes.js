@@ -1,10 +1,11 @@
 class Shape {
    constructor(){
       this.points = []
-      this.direction = new Vector(0, 0)
+      this.direction = 0
       this.sides = []
 		this.colorFill = 'transparent'
 		this.colorStroke = '#000'
+      this.center = new Vector(0, 0)
    }
 
    setPos(vect){
@@ -29,10 +30,10 @@ class Shape {
 
    rotate(angle, origin) {
       for(var point of this.points){
-         var vDiff = point.clone().min(origin)
-         console.log(vDiff.length())
-         point.x = origin.x * Math.cos(angle * Math.PI/180) - point.y * Math.sin(angle)
-         point.y = origin.x * Math.sin(angle * Math.PI/180) - point.y * Math.cos(angle)
+         var newAngle = point.clone().min(origin).direction() + angle
+         var radius = point.distance(origin)
+         point.x = Math.cos(newAngle * Math.PI/180) * radius + origin.x
+         point.y = Math.sin(newAngle * Math.PI/180) * radius + origin.y
       }
    }
 
