@@ -13,5 +13,9 @@ scene.step = function(){
    if(scene.keys[37]){
       ship.rotate(-2, new Vector(scene.width/2, scene.height/2))
    }
+
+   scene.ctx.fillStyle = '#000'
+   scene.ctx.fillText('Use Left to Rotate negative', 10, 20)
+   scene.ctx.fillText('Use Right to Rotate positive', 10, 35)
 }
 scene.start();

@@ -16,16 +16,22 @@ scene.step = function(){
    angle += 10
    if(angle == 360){ angle = 1 }
    if(scene.mouse.down){
-      gravity.points[0].x = scene.mouse.pos.x
-      gravity.points[0].y = scene.mouse.pos.y
+      scene.keys[32]
+         ? vCenter.copy(scene.mouse.pos)
+         : gravity.points[0].copy(scene.mouse.pos)
    }
    var radius = gravity.points[0].distance(vCenter)
    circle.points[0].x = Math.cos(angle * Math.PI/180) * radius + gravity.points[0].x
    circle.points[0].y = Math.sin(angle * Math.PI/180) * radius + gravity.points[0].y
-
+   circleGhost.points[0].copy(vCenter )
    for(var shape of scene.shapes){
       scene.drawShape(shape)
    }
+
+   scene.ctx.fillStyle = '#000'
+   scene.ctx.fillText('Click to move origin', 10, 20)
+   scene.ctx.fillText('Hold Space and click to move circle start', 10, 35)
+
 }
 
 scene.start()
