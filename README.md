@@ -39,6 +39,13 @@ Getting the X/Y coordiantes from length and angle ( Converting Polar to Cartesia
     var y = length * Math.sin(angle / (180/Math.PI))
 ```
 
+### Sin, Cos, Tan are ratios
+When thinking about sin, cos, tan it can be intuitive to think of the unit circle and solve a triangle using the ratios
+
+sin: From -1 to 1 the Y
+cos: From -1 to 1 the X
+tan: can go above the heigth of the wall
+
 ## 📚 Library
 - http://blog.wolfire.com/2009/07/linear-algebra-for-game-developers-part-1/
 - http://www.helixsoft.nl/articles/circle/sincos.htm
