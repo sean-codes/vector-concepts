@@ -3,7 +3,10 @@ class Vector {
       this.setX(x)
       this.setY(y)
    }
-
+   copy(vect) {
+      this.x = vect.x
+      this.y = vect.y
+   }
    setX(x) {
       this.x = x
    }
