@@ -50,6 +50,10 @@ class Vector {
       return Math.sqrt(this.x*this.x + this.y*this.y)
    }
 
+   distance(vect) {
+      return this.clone().min(vect).length()
+   }
+
    reflect() {
       this.scale(-1)
    }
