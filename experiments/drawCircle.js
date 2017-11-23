@@ -2,19 +2,16 @@ var canvas = document.querySelector('canvas')
 var scene = new Scene(canvas)
 
 var vCenter = new Vector(scene.width/2, scene.height/2)
-var radius = 50
 var angle = 0
-var angleStep = 10
-// Generate a circle
+var radius = 50
+
 while(angle < 360){
-   angle += angleStep
+   angle += 36
 
-   // To get the x and y cordinate of length and angle
-   var x = radius * Math.cos(angle / (180/Math.PI))
-   var y = radius * Math.sin(angle / (180/Math.PI))
+   var x = Math.cos(angle * Math.PI/180) * radius
+   var y = Math.sin(angle * Math.PI/180) * radius
 
-   var newCircle = new Circle(scene.width/2 + x, scene.height/2 + y, 3)
-   scene.addShape(newCircle)
+   scene.addShape(new Circle(x + vCenter.x, y + vCenter.y, 3))
 }
 
 scene.step = function() {
