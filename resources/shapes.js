@@ -29,9 +29,14 @@ class Shape {
    }
 
    rotate(angle, origin) {
-      for(var point of this.points){
-         var newAngle = point.clone().min(origin).direction() + angle
+      for(var point of this.points) {
+         // 1. Find the radius
          var radius = point.distance(origin)
+
+         // 2. Find the new angle
+         var newAngle = point.clone().min(origin).direction() + angle
+
+         // 3. Set the new cartesian
          point.x = Math.cos(newAngle * Math.PI/180) * radius + origin.x
          point.y = Math.sin(newAngle * Math.PI/180) * radius + origin.y
       }
