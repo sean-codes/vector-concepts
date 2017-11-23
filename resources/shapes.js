@@ -27,8 +27,13 @@ class Shape {
 
    }
 
-   rotate() {
-
+   rotate(angle, origin) {
+      for(var point of this.points){
+         var vDiff = point.clone().min(origin)
+         console.log(vDiff.length())
+         point.x = origin.x * Math.cos(angle * Math.PI/180) - point.y * Math.sin(angle)
+         point.y = origin.x * Math.sin(angle * Math.PI/180) - point.y * Math.cos(angle)
+      }
    }
 
    draw(ctx) {
@@ -74,6 +79,20 @@ class Square extends Shape {
    }
 }
 
+class Triangle extends Shape {
+   constructor(x, y, width, height) {
+      super()
+      this.width = width
+      this.height = height
+      this.points = [
+         new Vector(x, y-height/2),
+         new Vector(x-width/2, y+height/2),
+         new Vector(x+width/2, y+height/2)
+      ]
+
+      console.log(this.points)
+   }
+}
 class Circle extends Shape{
    constructor(x, y, radius) {
       super()
