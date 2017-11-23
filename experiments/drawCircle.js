@@ -1,23 +1,22 @@
-var canvas = document.querySelector('canvas')
-var scene = new Scene(canvas)
+var scene = new Scene(document.querySelector('canvas'))
 
-var vCenter = new Vector(scene.width/2, scene.height/2)
-var angle = 0
+// Polar
 var radius = 50
+var angle = 0
 
 while(angle < 360){
-   angle += 36
-
+   angle += 10
+   
+   // Convert Cartisian to Polar
    var x = Math.cos(angle * Math.PI/180) * radius
    var y = Math.sin(angle * Math.PI/180) * radius
 
-   scene.addShape(new Circle(x + vCenter.x, y + vCenter.y, 3))
+   scene.addShape(new Circle(x+scene.width/2, y+scene.height/2, 3))
 }
 
 scene.step = function() {
-   for(var shape of this.shapes) {
+   for(var shape of this.shapes){
       scene.drawShape(shape)
    }
 }
-
 scene.start()
