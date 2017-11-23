@@ -1,6 +1,7 @@
 class Scene {
    constructor(canvas) {
       this.canvas = canvas
+      this.canvas.tabIndex = 1
       this.ctx = this.canvas.getContext('2d')
       this.width = this.canvas.width
       this.height = this.canvas.height
@@ -8,13 +9,36 @@ class Scene {
       this.interval = undefined
       this.shapes = []
 
-      this.mousepos = new Vector(0, 0)
+      this.mouse = {
+         pos: new Vector(0, 0),
+         down: false
+      }
+
       this.listen()
+
+      this.keys = {}
    }
 
    listen(){
       this.canvas.addEventListener('mousemove', (e) => {
          this.mousemove(e.layerX, e.layerY)
+      })
+
+      this.canvas.addEventListener('mousedown', (e) => {
+         console.log('down')
+         this.mousedown()
+      })
+
+      this.canvas.addEventListener('mouseup', (e) => {
+         this.mouseup()
+      })
+
+      this.canvas.addEventListener('keydown', (e) => {
+         this.keydown(e.keyCode)
+      })
+
+      this.canvas.addEventListener('keyup', (e) => {
+         this.keyup(e.keyCode)
       })
    }
 
@@ -41,7 +65,24 @@ class Scene {
    }
 
    mousemove(x, y) {
-      this.mousepos.setX(x)
-      this.mousepos.setY(y)
+      this.mouse.pos.setX(x)
+      this.mouse.pos.setY(y)
+   }
+
+   mousedown() {
+      this.mouse.down = true
+   }
+
+   mouseup(){
+
+      this.mouse.down = false
+   }
+
+   keydown(code){
+      this.keys[code] = true
+   }
+
+   keyup(code){
+      this.keys[code] = false
    }
 }
