@@ -25,7 +25,6 @@ class Scene {
       })
 
       this.canvas.addEventListener('mousedown', (e) => {
-         console.log('down')
          this.mousedown()
       })
 
