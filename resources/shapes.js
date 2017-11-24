@@ -8,8 +8,10 @@ class Shape {
    }
 
    setPos(vect){
-      this.pos = vect
-      return this
+      var move = this.points[0].clone().min(vect)
+      for(var point of this.points) {
+         point.min(move)
+      }
    }
 
    setDirection(vect){

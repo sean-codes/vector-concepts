@@ -17,6 +17,7 @@ class Scene {
       this.listen()
 
       this.keys = {}
+      this.start()
    }
 
    listen(){
