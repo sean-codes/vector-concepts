@@ -50,7 +50,6 @@ scene.step = function(){
    this.ctx.lineTo(mouseDir.x*50+ vCenter.x, mouseDir.y*50 + vCenter.y)
    this.ctx.stroke()
 
-
    // Info
    this.ctx.font = '16px Monospace'
 	this.ctx.fillStyle = colorBlack
