@@ -44,7 +44,9 @@ class Scene {
    step(){}
 
    start(){
-      this.interval = setInterval(() => { this.step() }, this.speed)
+      this.interval = setInterval(() => {
+         this.step()
+      }, this.speed)
    }
 
    stop(){
@@ -57,6 +59,12 @@ class Scene {
 
    addShape(shape) {
       this.shapes.push(shape)
+   }
+
+   drawShapes() {
+      for(var shape of this.shapes){
+         this.drawShape(shape)
+      }
    }
 
    drawShape(shape) {
