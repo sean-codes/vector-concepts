@@ -5,7 +5,6 @@ class Shape {
       this.sides = []
 		this.colorFill = 'transparent'
 		this.colorStroke = '#000'
-      this.center = new Vector(0, 0)
    }
 
    setPos(vect){
@@ -29,6 +28,7 @@ class Shape {
    }
 
    rotate(angle, origin) {
+      origin = origin || this.center()
       for(var point of this.points) {
          // 1. Find the radius
          var radius = point.distance(origin)
@@ -55,6 +55,16 @@ class Shape {
 		ctx.fill()
 		ctx.strokeStyle = this.colorStroke
       ctx.stroke()
+   }
+
+   center(){
+      var x = 0
+      var y = 0
+      for(var point of this.points){
+         x += point.x
+         y += point.y
+      }
+      return new Vector(x/this.points.length, y/this.points.length)
    }
 }
 
@@ -89,16 +99,15 @@ class Triangle extends Shape {
    constructor(x, y, width, height) {
       super()
       this.width = width
-      this.height = height
+      this.height = height || width
       this.points = [
-         new Vector(x, y-height/2),
-         new Vector(x-width/2, y+height/2),
-         new Vector(x+width/2, y+height/2)
+         new Vector(x, y-this.height/2),
+         new Vector(x-this.width/2, y+this.height/2),
+         new Vector(x+this.width/2, y+this.height/2)
       ]
-
-      console.log(this.points)
    }
 }
+
 class Circle extends Shape{
    constructor(x, y, radius) {
       super()
