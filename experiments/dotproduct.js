@@ -21,6 +21,7 @@ scene.step = function() {
    scene.debug(`DOT: ${dot}`)
    scene.debug(`Length of Both: ${dot}`)
    scene.debug(`~Length of Both: ${Math.round(scaleOfBothVectorLengths)}`)
-   scene.debug(`Angle: ${dot/scaleOfBothVectorLengths}`)
+   scene.debug(`COS: ${dot/scaleOfBothVectorLengths}`)
+   scene.debug(`Angle: ${Math.acos(dot/scaleOfBothVectorLengths) * 180/Math.PI}`)
 
 }

@@ -45,8 +45,31 @@ When thinking about sin, cos, tan it can be intuitive to think of the unit circl
 ```
 sin: From -1 to 1 the Y
 cos: From -1 to 1 the X
-tan: can go above the heigth of the wall
+tan: can go above 1. the heigth of the wall
 ```
+
+### DOT Product
+
+The most mystical equation
+```js
+   dot = vector1.x * vector2.x + vector1.y * vector2.y
+```
+
+The dot product gives us a relationship of two vectors. It is useful for finding the angle
+
+### Finding the angle between two vectors using DOT Product
+
+The angle is equal to the DOT product of the vectors devided by their lengths multiplied
+
+
+
+```js
+   //COS(Angle) = DOT(V1, V2) / (V1.length * V2.length)
+   var dot = vector1.dot(vector2)
+   var cosAngle = dot / (vector1.length() * vector2.length())  // -1 to 1
+   var angle = acos(cosAngle) // 180 - 0
+```
+
 
 ## 📚 Library
 - http://blog.wolfire.com/2009/07/linear-algebra-for-game-developers-part-1/
