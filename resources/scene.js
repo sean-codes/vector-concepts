@@ -38,6 +38,7 @@ class Scene {
       })
 
       this.canvas.addEventListener('keydown', (e) => {
+         e.preventDefault()
          this.keydown(e.keyCode)
       })
 
