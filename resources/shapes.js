@@ -68,6 +68,15 @@ class Shape {
       }
       return new Vector(x/this.points.length, y/this.points.length)
    }
+
+   axis(){
+      // Return each axis (as a unit)
+      var axis = []
+      for(var i = 0; i < this.points.length; i++){
+         axis.push(this.points[i].clone().min(this.points[i-1] ? this.points[i-1] : this.points[this.points.length-1]).unit())
+      }
+      return axis
+   }
 }
 
 class Line extends Shape {
