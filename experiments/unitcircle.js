@@ -26,7 +26,7 @@ scene.step = function(){
    for(var shape of scene.shapes){
       scene.drawShape(shape)
    }
-   var mouseDir = this.mouse.pos.clone().min(vCenter).normalize()
+   var mouseDir = this.mouse.pos.clone().min(vCenter).unit()
    var mouseDirDegree = mouseDir.direction()
 
    // Move Sin/Cos

@@ -34,5 +34,5 @@ scene.step = function() {
    scene.ctx.fillText(`center1 x: ${center1.x} y: ${center1.y}`, 20, 35)
    scene.ctx.fillText(`distance ${distance}`, 20, 50)
    scene.ctx.fillText(`half width: ${halfWidth}`, 20, 65)
-   scene.ctx.fillText(`projection: ${center0.normalize().dot(center1.normalize())}`, 20, 80)
+   scene.ctx.fillText(`projection: ${center0.unit().dot(center1.unit())}`, 20, 80)
 }

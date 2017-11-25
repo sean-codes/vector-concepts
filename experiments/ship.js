@@ -20,7 +20,7 @@ scene.step = function(){
       ship.rotate(-5, origin.points[0])
    }
    if(scene.keys[38]){
-      var direction = ship.points[0].clone().min(origin.points[0]).normalize().scale(5)
+      var direction = ship.points[0].clone().min(origin.points[0]).unit().scale(5)
       ship.direction = direction
       origin.direction = direction
       origin.move()

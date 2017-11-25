@@ -51,7 +51,7 @@ class Vector {
 
    }
 
-   normalize() {
+   unit() {
       return this.scale(1/this.length())
    }
 
