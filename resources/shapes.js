@@ -73,7 +73,8 @@ class Shape {
       // Return each axis (as a unit)
       var axis = []
       for(var i = 0; i < this.points.length; i++){
-         axis.push(this.points[i].clone().min(this.points[i-1] ? this.points[i-1] : this.points[this.points.length-1]).unit())
+         var ax = this.points[i].clone().min(this.points[i-1] || this.points[this.points.length-1])
+         axis.push(ax)
       }
       return axis
    }
