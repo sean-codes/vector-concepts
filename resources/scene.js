@@ -1,6 +1,9 @@
 class Scene {
    constructor(canvas) {
       this.canvas = canvas
+      if(!this.canvas){
+         this.canvas = document.querySelector('canvas')
+      }
       this.canvas.tabIndex = 1
       this.ctx = this.canvas.getContext('2d')
       this.width = this.canvas.width
@@ -8,6 +11,7 @@ class Scene {
       this.speed = 1000/60
       this.interval = undefined
       this.shapes = []
+      this.debugPos = new Vector(20, 0)
 
       this.mouse = {
          pos: new Vector(0, 0),
@@ -46,6 +50,8 @@ class Scene {
 
    start(){
       this.interval = setInterval(() => {
+         this.debugPos = this.debugPos.set(10, 0)
+         this.clear()
          this.step()
       }, this.speed)
    }
@@ -70,6 +76,19 @@ class Scene {
 
    drawShape(shape) {
       shape.draw(this.ctx)
+   }
+
+   drawLine(v1, v2) {
+      this.ctx.beginPath()
+      this.ctx.moveTo(v1.x, v1.y)
+      this.ctx.lineTo(v2.x, v2.y)
+      this.ctx.stroke()
+   }
+
+   debug(text){
+      this.ctx.font = '16px Monospace'
+      this.debugPos.add(new Vector(0, 18))
+      this.ctx.fillText(text, this.debugPos.x, this.debugPos.y)
    }
 
    mousemove(x, y) {

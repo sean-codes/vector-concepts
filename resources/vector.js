@@ -1,12 +1,18 @@
 class Vector {
    constructor(x, y) {
-      this.setX(x)
-      this.setY(y)
+      this.set(x, y)
    }
    copy(vect) {
       this.x = vect.x
       this.y = vect.y
    }
+
+   set(x, y){
+      this.setX(x)
+      this.setY(y)
+      return this
+   }
+
    setX(x) {
       this.x = x
    }
