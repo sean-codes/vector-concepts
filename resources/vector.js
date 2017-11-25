@@ -48,7 +48,9 @@ class Vector {
 	}
 
    cross() {
-
+      var save = this.x
+      this.x = this.y
+      this.y = save*-1
    }
 
    unit() {
@@ -73,5 +75,9 @@ class Vector {
 
    direction() {
       return 180 + Math.atan2(this.y*-1, this.x*-1) * 180/Math.PI
+   }
+
+   toString() {
+      return '(' + this.x + ', ' + this.y + ')'
    }
 }
