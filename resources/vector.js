@@ -39,6 +39,12 @@ class Vector {
       return this
    }
 
+   shrink(amount) {
+      this.x /= amount
+      this.y /= amount
+      return this
+   }
+
    dot(vect) {
       return this.x * vect.x + this.y * vect.y
    }
@@ -51,10 +57,11 @@ class Vector {
       var save = this.x
       this.x = this.y
       this.y = save*-1
+      return this
    }
 
    unit() {
-      return this.scale(1/this.length())
+      return this.clone().scale(1/this.length())
    }
 
    length() {
@@ -63,6 +70,12 @@ class Vector {
 
    distance(vect) {
       return this.clone().min(vect).length()
+   }
+
+   project(vect) {
+      var lengthOfVect = vect.length()
+      var cosPheta = this.dot(vect) / (this.length() * vect.length())
+      return this.unit().scale(cosPheta * lengthOfVect)
    }
 
    reflect() {
@@ -78,6 +91,8 @@ class Vector {
    }
 
    toString() {
-      return '(' + this.x + ', ' + this.y + ')'
+      return '(' + Math.round(this.x*1000)/1000 + ', ' + Math.round(this.y*1000)/1000 + ')'
    }
+
+
 }
