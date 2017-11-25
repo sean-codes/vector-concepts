@@ -17,6 +17,8 @@ scene.step = function(){
    scene.drawLine(vCenter, v1.clone().project(v2).add(vCenter))
 
    scene.ctx.strokeStyle = '#465'
-   scene.debug('V1 Projected on V2: ' + v1.clone().project(v2).toString())
+   scene.debug('V1 Projected on V2: ' + v2.clone().project(v1).toString())
    scene.drawLine(vCenter, v2.clone().project(v1).add(vCenter))
+
+   scene.debug(v1.unit().scale(v1.unit().dot(v2)))
 }
