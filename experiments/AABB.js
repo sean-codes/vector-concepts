@@ -19,7 +19,7 @@ scene.step = function() {
    var center0 = block0.center()
    var center1 = block1.center()
    var halfWidth = block0.width/2
-   var distance = center0.x - center1.x
+   var distance = center0.distance(center1)
 
    // Draw line
    this.ctx.beginPath()
@@ -34,5 +34,5 @@ scene.step = function() {
    scene.ctx.fillText(`center1 x: ${center1.x} y: ${center1.y}`, 20, 35)
    scene.ctx.fillText(`distance ${distance}`, 20, 50)
    scene.ctx.fillText(`half width: ${halfWidth}`, 20, 65)
-   scene.ctx.fillText(`projection: ${center0.unit().dot(center1.unit())}`, 20, 80)
+   scene.ctx.fillText(`colling: ${distance < halfWidth*2 ? 'true' : 'false'}`, 20, 80)
 }

@@ -12,9 +12,9 @@ scene.step = function() {
    var tempV1 = v1.clone().min(origin)
    var tempV2 = scene.mouse.pos.clone().min(origin)
 
-   scene.debug(`Origin: (${origin.x}, ${origin.y})`)
-   scene.debug(`V1: (${tempV1.x}, ${tempV1.y})`)
-   scene.debug(`V2: (${tempV2.x}, ${tempV2.y})`)
+   scene.debug(`Origin: ${origin.toString()}`)
+   scene.debug(`V1: ${tempV1.toString()}`)
+   scene.debug(`V2: ${tempV2.toString()}`)
 
    var dot = tempV2.dot(tempV1)
    var scaleOfBothVectorLengths = tempV1.length()*tempV2.length()
