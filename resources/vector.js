@@ -73,9 +73,7 @@ class Vector {
    }
 
    project(vect) {
-      var lengthOfVect = vect.length()
-      var cosPheta = this.dot(vect) / (this.length() * vect.length())
-      return this.unit().scale(cosPheta * lengthOfVect)
+      return this.unit().scale(this.unit().dot(vect))
    }
 
    reflect() {
