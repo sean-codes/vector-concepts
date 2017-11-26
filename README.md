@@ -2,7 +2,7 @@
 > This is a repository I use to adventure, explore, and understand geometry / vector mathmatics.
 
 ![Example GIF](https://raw.githubusercontent.com/sean-codes/vector-concepts/master/example.gif?v=2)
-
+View Experiments: [Experiments](https://sean-codes.github.io/vector-concepts/)
 ## ⚔️ Gear
 - Vector.js - 2D Vector Math
 - Scene.js - Holds the scene for drawing and handling input events
@@ -10,8 +10,14 @@
 
 ## 🗺 Explored
 - Scene setup / Loop
+- Unit Circle
+- SIN/COS/TAN
 - Basic Vector Setup ( Adding, Subtracting, Scale, Distance )
+- Rotation
 - Dot Product
+- Projection
+- Axis Aligned Bounding Box Collision
+- Separate Axis Collisions
 
 ## 📙 Journal
 
