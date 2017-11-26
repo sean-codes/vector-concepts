@@ -27,10 +27,23 @@
          // Some interesting manuevering
          document.body.onload = function() {
             for(var experiment of experiments){
-               var path = location.href.replace(location.hash, '')
+               // This is seriously awful :]
+               var path = window.location.href.replace(location.hash, '')
                var scriptSrc = path.replace('/index.html', '') + experiment.src
-               var selected = location.hash.includes(experiment.src) ? 'active' : ''
-               document.body.innerHTML += `<a class="${selected}" onclick="location.reload()" href='${path}#${scriptSrc}'>${experiment.title}</a> `;
+               var a = document.createElement('a')
+               a.href = '#'
+               a.dataset.path = path
+               a.dataset.src = scriptSrc
+               if(window.location.hash.includes(experiment.src)){
+                  a.classList.add('active')
+               }
+               a.innerHTML = experiment.title
+               a.addEventListener('click', function(e){
+                  e.preventDefault()
+                  window.location.href = this.dataset.path + '#' + this.dataset.src
+                  window.location.reload()
+               })
+               document.body.appendChild(a)
             }
 
             if(location.hash.length > 0){
