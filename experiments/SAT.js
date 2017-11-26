@@ -3,20 +3,22 @@ var scene = new Scene()
 var vCenter = new Vector(scene.width/2, scene.height/2)
 var boxes = [
    new Square(vCenter.x, vCenter.y, 50),
-   new Square(vCenter.x+75, vCenter.y, 50)
+   new Square(vCenter.x+75, vCenter.y, 50),
+   new Triangle(vCenter.x-75, vCenter.y, 50),
 ]
 
 scene.addShape(boxes[0])
 scene.addShape(boxes[1])
+scene.addShape(boxes[2])
 
 
 scene.step = function(){
+   scene.debug('Hold mouse down to move shape')
    scene.drawShapes()
-
-
-   var noTouch = sat()
-   for(var box of boxes){
-      box.colorStroke = noTouch ? '#000' : '#F22';
+   boxes[0].rotate(0.25)
+   for(var shape1 of scene.shapes){
+      var touch = sat(shape1)
+      shape1.colorStroke = touch ? '#F22' : '#000';
    }
 
    if(scene.mouse.down) {
@@ -24,46 +26,45 @@ scene.step = function(){
          ? boxes[0].setPos(scene.mouse.pos)
          : boxes[1].setPos(scene.mouse.pos)
    }
-   //scene.stop()
+
 }
 
 
-function sat() {
-   var noTouch = 0
-   // Get the unique axis
-   testPos = new Vector(vCenter.x, vCenter.y)
-   boxes[0].rotate(1)
+function sat(checkShape) {
+   var checkAxis = checkShape.axis()
+   // Loop each shape
+   for(var shape of scene.shapes) {
+      if(shape.unique == checkShape.unique) continue;
+      // Check each Axis
+      var axisArr = shape.axis().concat(checkAxis)
+      var touch = true
+      for(var axis of axisArr) {
+         // Pairs
+         var shapeMinMax = {x: undefined, y: undefined}
+         var checkMinMax = {x: undefined, y: undefined}
 
-   // Stop hard coding
-   // var axisArr = [
-   //    new Vector(1, 0),
-   //    new Vector(0, 1)
-   // ]
-
-   // Gather all the axis
-   var axisArr = boxes[0].axis().concat(boxes[1].axis())
-
-   // Loop
-   for(var axis of axisArr) {
-      var minMaxPairs = []
-      for(var box of boxes) {
-         var min = undefined
-         var max = undefined
-         for(var point of box.points) {
-            var dot = axis.dot(point)
-            min = min ? Math.min(min, dot) : dot
-            max = max ? Math.max(max, dot) : dot
-            scene.ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)'
-            scene.drawLine(point, axis.project(point))
+         // Check current shape
+         for(var point of shape.points){
+            var dot = point.dot(axis)
+            shapeMinMax.min = shapeMinMax.min ? Math.min(shapeMinMax.min, dot) : dot
+            shapeMinMax.max = shapeMinMax.max ? Math.max(shapeMinMax.max, dot) : dot
          }
-         minMaxPairs.push({ min: min, max: max })
-      }
-      //console.log(minMaxPairs)
-      if(minMaxPairs[0].min > minMaxPairs[1].max || minMaxPairs[1].min > minMaxPairs[0].max){
-         //console.log('not touching on axis: ' + axis.toString())
-         noTouch++
-      }
 
+         // Check the checkshape on the axis
+         for(var point of checkShape.points){
+            var dot = point.dot(axis)
+            checkMinMax.min = checkMinMax.min ? Math.min(checkMinMax.min, dot) : dot
+            checkMinMax.max = checkMinMax.max ? Math.max(checkMinMax.max, dot) : dot
+         }
+
+         // Return if no touch
+         if(checkMinMax.min > shapeMinMax.max || checkMinMax.max < shapeMinMax.min){
+            touch = false
+            break
+         }
+      }
+      if(!touch){ continue }
+      return true
    }
-   return noTouch > 0
+   return false
 }

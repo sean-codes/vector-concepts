@@ -6,6 +6,7 @@ class Scene {
       }
       this.canvas.tabIndex = 1
       this.ctx = this.canvas.getContext('2d')
+
       this.width = this.canvas.width
       this.height = this.canvas.height
       this.speed = 1000/60
@@ -86,8 +87,9 @@ class Scene {
       this.ctx.stroke()
    }
 
-   debug(text){
+   debug(text, color){
       this.ctx.font = '16px Monospace'
+      this.ctx.fillStyle = color || '#222'
       this.debugPos.add(new Vector(0, 18))
       this.ctx.fillText(text, this.debugPos.x, this.debugPos.y)
    }
