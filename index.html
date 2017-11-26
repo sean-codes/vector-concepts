@@ -40,7 +40,7 @@
                a.innerHTML = experiment.title
                a.addEventListener('click', function(e){
                   e.preventDefault()
-                  window.location.href = this.dataset.path + '#' + this.dataset.src
+                  window.location.href = this.dataset.path + '/#' + this.dataset.src
                   window.location.reload()
                })
                document.body.appendChild(a)
