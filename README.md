@@ -2,6 +2,7 @@
 > This is a repository I use to adventure, explore, and understand geometry / vector mathmatics.
 
 ![Example GIF](https://raw.githubusercontent.com/sean-codes/vector-concepts/master/example.gif?v=2)
+
 View Experiments: [Experiments](https://sean-codes.github.io/vector-concepts/)
 ## ⚔️ Gear
 - Vector.js - 2D Vector Math
