@@ -5,6 +5,7 @@ class Shape {
       this.sides = []
 		this.colorFill = 'transparent'
 		this.colorStroke = '#000'
+      this.unique = Math.random()
    }
 
    setPos(vect){
@@ -74,7 +75,7 @@ class Shape {
       var axis = []
       for(var i = 0; i < this.points.length; i++){
          var ax = this.points[i].clone().min(this.points[i-1] || this.points[this.points.length-1])
-         axis.push(ax)
+         axis.push(ax.cross())
       }
       return axis
    }
