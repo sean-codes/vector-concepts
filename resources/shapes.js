@@ -20,9 +20,9 @@ class Shape {
       return this
    }
 
-   move() {
+   move(vect) {
       for(var point of this.points) {
-         point.add(this.direction)
+         point.add(vect)
       }
    }
 
@@ -75,8 +75,10 @@ class Shape {
       var axis = []
       for(var i = 0; i < this.points.length; i++){
          var ax = this.points[i].clone().min(this.points[i-1] || this.points[this.points.length-1])
-         axis.push(ax.cross())
+         axis.push(ax.unit().cross())
       }
+
+      //return [new Vector(1, 0), new Vector(-1, 0)]
       return axis
    }
 }
