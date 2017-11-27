@@ -1,63 +1,59 @@
 var scene = new Scene()
-scene.addShape(new Square(scene.width/2, scene.height/2, 50))
-scene.addShape(new Triangle(scene.width/2-110, scene.height/2, 50))
+scene.addShape(new Square(scene.width/2 + 30, scene.height/2, 50))
+scene.addShape(new Square(scene.width/2 - 30, scene.height/2, 50))
+
 
 scene.step = function() {
+   scene.shapes[1].rotate(0.5)
    scene.drawShapes()
 
-   // Loop each shape. Check for a collision
+   // Check for collision
    sat(scene.shapes[0], scene.shapes[1])
 
-   if(scene.mouse.down){
-      scene.shapes[0].setPos(scene.mouse.pos)
+   // Move Shape
+   if(scene.mouse.down) {
+      var pos = scene.mouse.pos.clone().add(new Vector(-25, -25))
+      scene.shapes[0].setPos(pos)
    }
-
-   //scene.shapes[1].rotate(1)
-   scene.debug('Click and hold to set triangle position!')
-   scene.shapes[1].rotate(1)
 }
 
-function sat(shape0, shape1) {
-   // Gather all the AXIS
-   var axis = shape1.axis().concat(shape0.axis())
-   var touch = true
+function sat(s1, s2) {
+   // Minimum translation vector
    var mtv = undefined
-   // console.log(axis)
+
+   // Get the axis
+   var axis = s1.axis().concat(s2.axis())
+
+   // Loop each axis
    for(var ax of axis) {
-      var shape0Min = undefined
-      var shape0Max = undefined
-      var shape1Min = undefined
-      var shape1Max = undefined
-      // Gather the Min/Max
-      for( var point of shape0.points) {
+      // Get min and max of projection on each point
+      var s1min = undefined
+      var s1max = undefined
+      var s2min = undefined
+      var s2max = undefined
+
+      for(var point of s1.points) {
          var dot = ax.dot(point)
-         shape0Min = shape0Min ? Math.min(shape0Min, dot) : dot
-         shape0Max = shape0Max ? Math.max(shape0Max, dot) : dot
+         s1min = s1min ? Math.min(s1min, dot) : dot
+         s1max = s1max ? Math.max(s1max, dot) : dot
       }
 
-      for(var point of shape1.points) {
+      for(var point of s2.points) {
          var dot = ax.dot(point)
-         shape1Min = shape1Min ? Math.min(shape1Min, dot) : dot
-         shape1Max = shape1Max ? Math.max(shape1Max, dot) : dot
+         s2min = s2min ? Math.min(s2min, dot) : dot
+         s2max = s2max ? Math.max(s2max, dot) : dot
       }
 
-      // Check for collision
-      if(shape0Min > shape1Max || shape0Max < shape1Min) {
-         return false
-      }
+      // Check if there is not a collision return
+      if(s1max <= s2min || s1min >= s2max){  return false; }
 
-      var overlap = shape0Max > shape1Min ? shape0Max - shape1Min : shape0Min - shape1Max
-      //onsole.log(ax.x, ax.y, shape0Min, shape0Max, shape1Min, shape1Max, overlap)
-      mtv = !mtv || Math.abs(overlap) < mtv.length() ? ax.scale(overlap) : mtv
+      // Find how much overlap
+      var overlap = s1max > s2min ? s1max - s2min : s2max - s1min
 
-      //console.log(overlap)
-
-      //mtv.add(ax.scale(overlap))
+      // If smaller replace
+      var mtv = !mtv || overlap < mtv.length() ? ax.scale(overlap) : mtv
    }
 
-   //console.log(mtv.x, mtv.y)
-   //console.log(ax.scale(overlap))
-   //shape0.move(ax.scale(overlap))
-   if(mtv) shape1.move(mtv)
+   s2.move(mtv)
    return true
 }
