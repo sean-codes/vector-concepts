@@ -11,7 +11,6 @@ scene.step = function(){
    for(var shape of scene.shapes){
       scene.drawShape(shape)
 
-      shape.move()
       if(shape.points[0].x + shape.width > scene.width || shape.points[0].x < 0){
          // bounce
          shape.direction.x *= -1
@@ -19,6 +18,7 @@ scene.step = function(){
       if(shape.points[0].y + shape.height > scene.height || shape.points[0].y < 0){
          shape.direction.y *= -1
       }
+      shape.move(shape.direction)
    }
 }
 

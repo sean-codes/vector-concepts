@@ -21,10 +21,8 @@ scene.step = function(){
    }
    if(scene.keys[38]){
       var direction = ship.points[0].clone().min(origin.points[0]).unit().scale(5)
-      ship.direction = direction
-      origin.direction = direction
-      origin.move()
-      ship.move()
+      ship.move(direction)
+      origin.move(direction)
    }
    if(scene.mouse.down && scene.keys[32]){
       origin.points[0] = scene.mouse.pos.clone()
