@@ -49,6 +49,10 @@ class Vector {
       return this.x * vect.x + this.y * vect.y
    }
 
+   cdot(vect) {
+      return this.x * vect.y - vect.x * this.y
+   }
+
 	det(vect) {
 		return this.x * vect.x - this.y * vect.y
 	}
