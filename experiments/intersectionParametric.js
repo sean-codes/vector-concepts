@@ -1,18 +1,22 @@
 var scene = new Scene()
-
-var line1 = new Line(100, 100, 300, 200)
-var line2 = new Line(100, 200, 200, 200)
-
-scene.addShape(line1)
-scene.addShape(line2)
-var circle = new Circle(0, 0, 3)
-circle.colorFill = '#F22'
-scene.addShape(circle)
+scene.addShapes([
+   new Line(100, 100, 300, 200),
+   new Line(200, 100, 400, 200),
+   new Line(300, 100, 200, 200)
+])
 
 scene.step = function() {
    scene.drawShapes()
-	var ipoint = intersect(line1.points[0], line1.points[1], line2.points[0], line2.points[1])
-	circle.setPos(ipoint || new Vector(-10, -10))
+
+   for(var line1 of scene.shapes) {
+      for(var line2 of scene.shapes) {
+         if(line1.unique == line2.unique) continue
+         var ipoint = intersect(line1.points[0], line1.points[1], line2.points[0], line2.points[1])
+         if(ipoint){
+            scene.drawCircle(ipoint, 4, '#F22')
+         }
+      }
+   }
 
 	if(scene.mouse.down){
 		scene.keys[32]
