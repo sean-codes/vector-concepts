@@ -86,7 +86,9 @@ function intersect(Start1, End1, Start2, End2) {
 
 	// Use the math we created.
 	var T2 = (Start2.y*Direction1.x - Start1.y*Direction1.x - Start2.x*Direction1.y + Start1.x*Direction1.y)/(Direction2.x*Direction1.y - Direction2.y*Direction1.x)
-	var T1 = (Start2.x + Direction2.x * T2 - Start1.x)/Direction1.x
+	var T1 = Direction1.x
+      ? (Start2.x + Direction2.x * T2 - Start1.x)/Direction1.x
+      : (Start2.y + Direction2.y * T2 - Start1.y)/Direction1.y
 
 	if(T2 < 0 || T2 > 1 || T1 < 0 || T1 > 1){ return false }
 	return new Vector(

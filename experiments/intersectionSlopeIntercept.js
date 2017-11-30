@@ -12,7 +12,7 @@ scene.addShape(circle)
 scene.step = function() {
    scene.drawShapes()
 	var ipoint = intersect(line1, line2)
-	console.log(ipoint)
+
 	if(ipoint) circle.setPos(ipoint)
 
 	if(scene.mouse.down){
