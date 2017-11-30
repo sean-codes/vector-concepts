@@ -66,6 +66,12 @@ class Scene {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
    }
 
+   addShapes(shapes){
+      for(var shape of shapes){
+         this.addShape(shape)
+      }
+   }
+
    addShape(shape) {
       this.shapes.push(shape)
    }
@@ -84,6 +90,14 @@ class Scene {
       this.ctx.beginPath()
       this.ctx.moveTo(v1.x, v1.y)
       this.ctx.lineTo(v2.x, v2.y)
+      this.ctx.stroke()
+   }
+
+   drawCircle(v, radius, color) {
+      this.ctx.beginPath()
+      this.ctx.arc(v.x, v.y, radius, 0, Math.PI*2)
+      this.ctx.fillColor = color || 'transparent'
+      this.ctx.fill()
       this.ctx.stroke()
    }
 
