@@ -2,10 +2,10 @@ class Shape {
    constructor(){
       this.points = []
       this.direction = 0
-      this.sides = []
 		this.colorFill = 'transparent'
 		this.colorStroke = '#000'
       this.unique = Math.random()
+      this.type = 'Shape'
    }
 
    setPos(vect){
@@ -81,23 +81,40 @@ class Shape {
       //return [new Vector(1, 0), new Vector(-1, 0)]
       return axis
    }
+
+   sides(){
+      // A side is a set of points
+      // Going top / right / bottom /left
+      var sides = []
+      for(var i = 0; i < this.points.length; i++){
+         sides.push([
+            this.points[i].clone(),
+            this.points[i+1] ? this.points[i+1].clone() : this.points[0].clone()
+         ])
+      }
+      return sides
+   }
 }
 
 class Line extends Shape {
    constructor(x, y, x2, y2){
       super()
-
+      this.type = 'Line'
       this.points = [
          new Vector(x, y),
          new Vector(x2, y2)
       ]
+   }
+
+   sides() {
+      return [ [this.points[0].clone(), this.points[1].clone()] ]
    }
 }
 
 class Square extends Shape {
    constructor(x, y, size){
       super()
-
+      this.type = 'Square'
       this.width = size
       this.height = size
 
@@ -113,6 +130,7 @@ class Square extends Shape {
 class Triangle extends Shape {
    constructor(x, y, width, height) {
       super()
+      this.type = 'Triangle'
       this.width = width
       this.height = height || width
       this.points = [
@@ -126,6 +144,7 @@ class Triangle extends Shape {
 class Circle extends Shape{
    constructor(x, y, radius) {
       super()
+      this.type = 'Circle'
       this.radius = radius
       this.points = [
          new Vector(x, y)
