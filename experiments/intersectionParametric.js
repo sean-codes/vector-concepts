@@ -12,16 +12,19 @@ scene.addShape(circle)
 scene.step = function() {
    scene.drawShapes()
 	var ipoint = intersect(line1.points[0], line1.points[1], line2.points[0], line2.points[1])
-	console.log(ipoint)
-	if(ipoint) circle.setPos(ipoint)
+	circle.setPos(ipoint || new Vector(-10, -10))
 
 	if(scene.mouse.down){
-		line2.points[1].copy(scene.mouse.pos)
+		scene.keys[32]
+         ? line2.points[1].copy(scene.mouse.pos)
+         :  line2.points[0].copy(scene.mouse.pos)
 	}
+   scene.debug('Hold mouse down to move line')
+   scene.debug('Hold space to move other side' )
 }
 
 function intersect(Start1, End1, Start2, End2) {
-	// [Operation] - Learn how to find point on a line
+	// [Operation] - Trying to figure out how to find point of intersection of two lines
 	//---------------------------------------------------------------------------------------------------
 	// Equation of a line
 	// Line = StartPoint + (EndPoint - StartPoint) * T
@@ -54,10 +57,10 @@ function intersect(Start1, End1, Start2, End2) {
 	// Direction2.x*Direction1.y*T2 - Direction2.y*Direction1.x*T2 == Start2.y*Direction1.x - Start1.y*Direction1.x - Start2.x*Direction1.y + Start1.x*Direction1.y
 
 	// 5. On the left side we see that spooky T2 and be undistributed
-	// T2(Direction2.x*Direction1.y - Direction2.y*Direction1.y) == Start2.y*Direction1.x - Start1.y*Direction1.x - Start2.x*Direction1.y + Start1.x*Direction1.y
+	// T2(Direction2.x*Direction1.y - Direction2.y*Direction1.x) == Start2.y*Direction1.x - Start1.y*Direction1.x - Start2.x*Direction1.y + Start1.x*Direction1.y
 
 	// 6. We made it! Move those others over. USE PARENTHESIS HERE!!!
-	// T2 = (Start2.y*Direction1.x - Start1.y*Direction1.x - Start2.x*Direction1.y + Start1.x*Direction1.y)/(Direction2.x*Direction1.y - Direction2.y*Direction1.y)
+	// T2 = (Start2.y*Direction1.x - Start1.y*Direction1.x - Start2.x*Direction1.y + Start1.x*Direction1.y)/(Direction2.x*Direction1.y - Direction2.y*Direction1.x)
 
 	// [Mission 3] With T2 we can quickly get T1 :]
 	// T1 = Start2.x + Direction2.x * T2 - Start1.x)/Direction.x
@@ -78,11 +81,9 @@ function intersect(Start1, End1, Start2, End2) {
 	}
 
 	// Use the math we created.
-	// I ALWAYS MISTYPE SOMETHING HERE
-	var T2 = (Start2.y*Direction1.x - Start1.y*Direction1.x - Start2.x*Direction1.y + Start1.x*Direction1.y)/(Direction2.x*Direction1.y - Direction2.y*Direction1.y)
+	var T2 = (Start2.y*Direction1.x - Start1.y*Direction1.x - Start2.x*Direction1.y + Start1.x*Direction1.y)/(Direction2.x*Direction1.y - Direction2.y*Direction1.x)
 	var T1 = (Start2.x + Direction2.x * T2 - Start1.x)/Direction1.x
 
-	console.log(T2, T1)
 	if(T2 < 0 || T2 > 1 || T1 < 0 || T1 > 1){ return false }
 	return new Vector(
 		Start1.x + Direction1.x * T1,
