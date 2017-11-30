@@ -1,7 +1,7 @@
 var scene = new Scene()
 scene.addShapes([
-   new Line(100, 100, 300, 200),
-   new Line(200, 100, 400, 200),
+   new Line(100, 100, 300, 100),
+   new Line(150, 50, 150, 200),
    new Line(300, 100, 200, 200)
 ])
 
