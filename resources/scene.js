@@ -96,7 +96,7 @@ class Scene {
    drawCircle(v, radius, color) {
       this.ctx.beginPath()
       this.ctx.arc(v.x, v.y, radius, 0, Math.PI*2)
-      this.ctx.fillColor = color || 'transparent'
+      this.ctx.fillStyle = color || 'transparent'
       this.ctx.fill()
       this.ctx.stroke()
    }
