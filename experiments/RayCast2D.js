@@ -1,4 +1,5 @@
 var scene = new Scene()
+scene.ctx.canvas.style.background = '#222'
 var squares = []
 for(var i = 0; i < 5; i++){
    squares.push(new Square(
@@ -9,18 +10,20 @@ for(var i = 0; i < 5; i++){
 }
 
 var light = new Circle(scene.width/2, scene.height/2, 3)
+light.direction = new Vector(Math.random()*5-2.5, Math.random()*5-2.5)
 light.colorFill = '#F22'
 
 scene.addShape(light)
 scene.addShapes(squares)
 
 scene.step = function(){
-   for(var square of squares) { square.rotate(Math.random()*-6), square.colorFill = '#D45'}
+
+   for(var square of squares) { square.rotate(1), square.colorFill = '#D45'}
 
    var direction = 0
    var radius = 1000
    while(direction < 360) {
-      direction += 10
+      direction += 0.1
       // Switch polar to cartesian
       // Direction + Length to X/Y
       var lightCast = new Vector(
@@ -46,14 +49,22 @@ scene.step = function(){
             }
          }
       }
-      if(closestIntersection) scene.drawCircle(closestIntersection, 3, '#465')
-      scene.ctx.strokeStyle = '#888'
+      scene.ctx.strokeStyle = '#cdcdcd'
       scene.drawLine(light.points[0], closestIntersection ? closestIntersection : lightCast)
+      //if(closestIntersection) scene.drawCircle(closestIntersection, 3, '#465')
    }
    if(scene.mouse.down) light.setPos(scene.mouse.pos)
    scene.drawShapes()
-
+   scene.debug('Casting 3600 Lines around a point', '#FFF')
    //scene.stop()
+   light.move(light.direction)
+   if(light.points[0].x < 0 || light.points[0].x > scene.width){
+      light.direction.x = light.direction.x*-1
+   }
+   if(light.points[0].y < 0 || light.points[0].y > scene.height){
+      light.direction.y = light.direction.y*-1
+      //light.move(light.direction)
+   }
 }
 
 function lineIntersection(s1, e1, s2, e2){
