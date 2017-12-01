@@ -13,8 +13,8 @@ var light = new Circle(scene.width/2, scene.height/2, 3)
 light.direction = new Vector(Math.random()*5-2.5, Math.random()*5-2.5)
 light.colorFill = '#F22'
 
-scene.addShape(light)
 scene.addShapes(squares)
+scene.addShape(light)
 
 scene.step = function(){
 
