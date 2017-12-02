@@ -17,8 +17,6 @@ scene.step = function() {
       scene.drawLine(intersection, intersection.clone().add(over), '#465')
       scene.debug(over)
       var reflect = over.reflect(line.points[1].clone().min(line.points[0]))
-      //scene.debug(reflect)
-      //console.log(rest)
       scene.drawLine(intersection, intersection.clone().add(reflect))
    }
 }

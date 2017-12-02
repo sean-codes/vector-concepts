@@ -112,11 +112,11 @@ class Line extends Shape {
 }
 
 class Square extends Shape {
-   constructor(x, y, size){
+   constructor(x, y, width, height){
       super()
       this.type = 'Square'
-      this.width = size
-      this.height = size
+      this.width = width
+      this.height = height || width
 
       this.points = [
          new Vector(x, y),

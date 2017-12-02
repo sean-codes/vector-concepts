@@ -81,10 +81,9 @@ class Vector {
    }
 
    reflect(vect) {
-      // Correct version
-      var n = vect.unit().cross()
-      var dot = this.dot(n)
-      return this.min(n.scale(dot*2))
+      var n = vect.unit()
+      var dot = n.dot(this)
+      return n.scale(dot*2).min(this)
    }
 
    clone() {
