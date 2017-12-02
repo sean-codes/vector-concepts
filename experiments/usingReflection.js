@@ -1,9 +1,9 @@
 var scene = new Scene()
-scene.addShape(new Square(0, 0, scene.width, scene.height))
+scene.addShape(new Square(0, 0, scene.width-150, scene.height))
 scene.addShape(new Square(scene.width/2, scene.height/2, 50))
 scene.addShape(new Square(scene.width/2 - 100, scene.height/2, 50))
-scene.addShape(new Square(scene.width/2 - 100, scene.height/2- 80, 50))
-scene.addShape(new Square(scene.width/2 + 100, scene.height/2- 80, 50))
+// scene.addShape(new Square(scene.width/2 - 100, scene.height/2- 80, 50))
+// scene.addShape(new Square(scene.width/2 + 100, scene.height/2- 80, 50))
 var circle = new Circle(50, 50, 5)
 circle.colorFill = '#F22'
 
@@ -11,23 +11,35 @@ var circleDir = new Vector(2, 2)
 scene.addShape(circle)
 scene.step = function() {
    scene.drawShapes()
-   scene.shapes[4].rotate(3)
+   //scene.shapes[4].rotate(3)
+   moveCircle()
 
-   for(var shape of scene.shapes){
+}
+
+function moveCircle() {
+   for(var shape of scene.shapes) {
+      // Only colliding on squares right now!
       if(shape.type != 'Square') continue
-      var closest = undefined
-      var closestDistance = undefined
-      for(var side of shape.sides()){
-         var check = closestPointToLine(circle.points[0], side)
-         scene.drawCircle(check, 3)
-         var distance = check.distance(circle.points[0])
-         if(!closest || distance < closestDistance){
-            closest = side
-            closestDistance = check.distance(circle.points[0])
+
+      for(var side of shape.sides()) {
+         sideDir = side[0].clone().min(side[1])
+         circlePos = circle.points[0].clone().add(circleDir)
+         circlePosRelative = side[0].clone().min(circlePos)
+         scene.debug(circlePosRelative + ' ' + circlePosRelative.dot(sideDir))
+         var facing = circlePosRelative.dot(sideDir)
+         // Make sure they are moving in opposite directions
+         if(facing > 0) {
+            // Get distance from
+            var closest = closestPointToLine(circle.points[0], side)
+            var distance = circle.points[0].distance(closest)
+
+            if(distance < 5 + circleDir.length()) {
+               circle.back(circleDir)
+               circleDir = circleDir.reflect(side[1].clone().min(side[0]))
+               circle.move(circleDir)
+               return
+            }
          }
-      }
-      if(typeof closest != 'undefined' && closestDistance < 5){
-         circleDir = circleDir.reflect(closest[1].clone().min(closest[0]))
       }
    }
    circle.move(circleDir)

@@ -25,6 +25,11 @@ class Shape {
          point.add(vect)
       }
    }
+   back(vect) {
+      for(var point of this.points) {
+         point.min(vect)
+      }
+   }
 
    reverse() {
 
