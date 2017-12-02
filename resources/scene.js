@@ -86,7 +86,8 @@ class Scene {
       shape.draw(this.ctx)
    }
 
-   drawLine(v1, v2) {
+   drawLine(v1, v2, color) {
+      if(color) scene.ctx.strokeStyle = color
       this.ctx.beginPath()
       this.ctx.moveTo(v1.x, v1.y)
       this.ctx.lineTo(v2.x, v2.y)
