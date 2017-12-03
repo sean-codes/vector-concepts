@@ -17,8 +17,10 @@ scene.step = function() {
    scene.debug(`V2: ${tempV2.toString()}`)
 
    var dot = tempV2.dot(tempV1)
+   var dot2 = tempV2.unit().dot(tempV1)
    var scaleOfBothVectorLengths = tempV1.length()*tempV2.length()
    scene.debug(`DOT: ${dot}`)
+   scene.debug(`DOT Unit: ${dot2}`)
    scene.debug(`Length of Both: ${dot}`)
    scene.debug(`~Length of Both: ${Math.round(scaleOfBothVectorLengths)}`)
    scene.debug(`COS: ${dot/scaleOfBothVectorLengths}`)
