@@ -6,10 +6,10 @@ var set = {
    friction: 0.975
 }
 var points = []
-for(var i = 0; i < 100; i++){
+for(var i = 0; i < 200; i++){
    setTimeout(function(){
       points.push(new Point(Math.random()*scene.width, Math.random()*100, scene.randomColor()))
-   }, i*50)
+   }, i*100)
 }
 
 scene.step = function(){
@@ -49,7 +49,7 @@ function collidePoints(){
          if(distance < point1.radius*2){
             var collideDirection = point1.pos.clone().min(point2.pos).unit().scale(point1.radius*2-distance)
             //console.log(collideDirection)
-            point1.old.min(collideDirection.scale(set.bounce/2))
+            point1.old.min(collideDirection.scale(set.bounce/4))
          }
       }
    }
