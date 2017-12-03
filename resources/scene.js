@@ -13,7 +13,7 @@ class Scene {
       this.interval = undefined
       this.shapes = []
       this.debugPos = new Vector(20, 0)
-
+      this.center = new Vector(this.width/2, this.height/2)
       this.mouse = {
          pos: new Vector(0, 0),
          down: false
@@ -64,6 +64,11 @@ class Scene {
 
    clear() {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+   }
+   setSpeed(speed) {
+      this.stop()
+      this.speed = speed
+      this.start()
    }
 
    addShapes(shapes){
@@ -129,5 +134,13 @@ class Scene {
 
    keyup(code){
       this.keys[code] = false
+   }
+
+   randomColor() {
+      var r = Math.floor(Math.random()*50)
+      var g = Math.floor(Math.random()*75)
+      var b = Math.floor(Math.random()*175)
+
+      return `rgb(${r}, ${g}, ${b})`
    }
 }
