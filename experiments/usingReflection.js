@@ -1,18 +1,19 @@
 var scene = new Scene()
+scene.ctx.canvas.style.background = '#111'
 // Walls
-scene.addShape(new Line(scene.width-10, scene.height-10, scene.width - 10, 10))
-scene.addShape(new Line(10, 10, 10, scene.height-10))
-scene.addShape(new Line(10, scene.height-10, scene.width-10, scene.height-10))
-scene.addShape(new Line(scene.width-10, 10, 10, 10))
+scene.addShape(new Line(scene.width-10, 10, 10, 10, '#333'))
+scene.addShape(new Line(scene.width-10, scene.height-10, scene.width - 10, 10, '#333'))
+scene.addShape(new Line(10, scene.height-10, scene.width-10, scene.height-10, '#333'))
+scene.addShape(new Line(10, 10, 10, scene.height-10, '#333'))
 //scene.addShape(new Square(0, 0, scene.width-150, scene.height))
-scene.addShape(new Square(scene.width/2, scene.height/2, 50))
-scene.addShape(new Square(scene.width/2 - 100, scene.height/2+20, 50))
-scene.addShape(new Square(scene.width/2 - 100, scene.height/2- 70, 50))
-scene.addShape(new Square(scene.width/2 + 100, scene.height/2- 70, 50))
+scene.addShape(new Square(scene.width/2, scene.height/2, 50, 50, randomColor()))
+scene.addShape(new Square(scene.width/2 - 100, scene.height/2+20, 50, 50, randomColor()))
+scene.addShape(new Square(scene.width/2 - 100, scene.height/2- 70, 50, 50, randomColor()))
+scene.addShape(new Square(scene.width/2 + 100, scene.height/2- 70, 50, 90, randomColor()))
 var circles = [
-   new Circle(243.5333, 115.012, 5),
+   new Circle(20, 115.012, 5),
    new Circle(200, 115.012, 5),
-   new Circle(0.5333, 115.012, 5),
+   new Circle(0.5333, 115.012, 10),
    new Circle(243.5333, 115.012, 5),
    new Circle(243.5333, 115.012, 5)
 ]
@@ -23,7 +24,7 @@ scene.addShapes(circles)
 scene.step = function() {
    //scene.shapes[2].rotate(2)
    scene.drawShapes()
-   scene.shapes[4].rotate(3)
+   scene.shapes[4].rotate(0.5)
    for(var circle of circles){
       moveCircle(circle)
    }
@@ -31,31 +32,34 @@ scene.step = function() {
 
 function moveCircle(circle) {
    if(!circle.dir) circle.dir = new Vector(Math.random()*2+1, Math.random()*2+1)
-   circle.colorFill = '#F22'
+   if(circle.colorFill == 'transparent') { circle.colorFill = randomColor() }
    for(var shape of scene.shapes) {
       // Only colliding on squares right now!
       if(shape.type == 'Circle') continue
 
       for(var side of shape.sides()) {
-         sideDir = side[0].clone().min(side[1])
-         var centerOfSide = side[0].clone().min(sideDir.clone().scale(0.5))
-         var crossOfSide = centerOfSide.clone().add(sideDir.cross().unit().scale(-5))
-         scene.drawCircle(centerOfSide, 3)
-         scene.drawCircle(crossOfSide, 3, '#F22')
-         var sideDir = centerOfSide.min(crossOfSide)
-         var facing = sideDir.dot(circle.dir)
-         // Make sure they are moving in opposite directions
-         //scene.debug(facing)
-         if(facing > 0) {
+
+         // Find out if the circle is facing the right side
+         var sideDir = side[0].clone().min(side[1])
+         var sideCross = sideDir.clone().cross()
+         var facing = sideCross.dot(circle.dir)
+
+         // How much over?
+         var circleRelation = side[0].clone().min(circle.points[0])
+         var over = circleRelation.dot(sideDir.unit())
+         //scene.debug(sideDir + ' : ' + over)
+
+         if(facing > 0 && over > 0 && over < sideDir.length()) {
+            scene.drawCircle(side[0].clone().min(sideDir.unit().scale(over)), 3, circle.colorFill)
             // Get distance from
             var closest = closestPointToLine(circle.points[0], side)
             var distance = circle.points[0].distance(closest)
 
-            if(distance < 5 + circle.dir.length()) {
+            if(distance < circle.radius + circle.dir.length()) {
                circle.back(circle.dir)
                circle.dir = circle.dir.reflect(side[1].clone().min(side[0]))
                circle.move(circle.dir)
-               return
+               //return
             }
          }
       }
@@ -76,4 +80,12 @@ function closestPointToLine(point, linePoints){
    ratioOver = Math.max(ratioOver, 0)
    //return
    return line.scale(ratioOver).add(linePoints[0])
+}
+
+function randomColor() {
+   var r = Math.floor(Math.random()*255)
+   var g = Math.floor(Math.random()*255)
+   var b = Math.floor(Math.random()*255)
+
+   return `rgb(${r}, ${g}, ${b})`
 }
