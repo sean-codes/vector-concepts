@@ -1,9 +1,9 @@
 class Shape {
-   constructor(){
+   constructor(color){
       this.points = []
       this.direction = 0
-		this.colorFill = 'transparent'
-		this.colorStroke = '#000'
+		this.colorFill = color || 'transparent'
+		this.colorStroke = color || '#000'
       this.unique = Math.random()
       this.type = 'Shape'
    }
@@ -102,8 +102,8 @@ class Shape {
 }
 
 class Line extends Shape {
-   constructor(x, y, x2, y2){
-      super()
+   constructor(x, y, x2, y2, color){
+      super(color)
       this.type = 'Line'
       this.points = [
          new Vector(x, y),
@@ -117,8 +117,8 @@ class Line extends Shape {
 }
 
 class Square extends Shape {
-   constructor(x, y, width, height){
-      super()
+   constructor(x, y, width, height, color){
+      super(color)
       this.type = 'Square'
       this.width = width
       this.height = height || width
