@@ -143,4 +143,13 @@ class Scene {
 
       return `rgb(${r}, ${g}, ${b})`
    }
+
+   sides() {
+      return [
+         [ new Vector(0, 0), new Vector(0, scene.height) ],
+         [ new Vector(0, scene.height), new Vector(scene.width, scene.height) ],
+         [ new Vector(scene.width, scene.height), new Vector(scene.width, 0) ],
+         [ new Vector(scene.width, 0), new Vector(0, 0) ],
+      ]
+   }
 }
