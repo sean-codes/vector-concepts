@@ -107,6 +107,11 @@ class Scene {
       this.ctx.stroke()
    }
 
+   drawText(v, text, color) {
+      this.ctx.fillStyle = color || '#000'
+      this.ctx.fillText(text, v.x, v.y)
+   }
+
    debug(text, color){
       this.ctx.font = '16px Monospace'
       this.ctx.fillStyle = color || '#222'
