@@ -79,8 +79,9 @@ class Shape {
       // Return each axis (as a unit)
       var axis = []
       for(var i = 0; i < this.points.length; i++){
-         var ax = this.points[i].clone().min(this.points[i-1] || this.points[this.points.length-1])
-         axis.push(ax.unit().cross())
+         var point1 = this.points[i]
+         var point2 = this.points[i-1] || this.points[this.points.length-1]
+         axis.push(point2.clone().min(point1).unit().cross())
       }
 
       //return [new Vector(1, 0), new Vector(-1, 0)]
