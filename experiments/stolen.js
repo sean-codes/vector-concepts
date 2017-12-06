@@ -106,26 +106,17 @@ var solve = function() {
 	var nBodies = bodies.length, nConstraints = constraints.length;
 
 	for (var n = 0; n < kNumIterations; n++) {
-		//
 		// solve constraints
-		//
-
 		for (var i = 0; i < nConstraints; i++) {
 			constraints[i].solve();
 		}
 
-		//
 		// Recalculate the bounding boxes
-		//
-
 		for (var i = 0; i < nBodies; i++) {
 			bodies[i].boundingBox();
 		}
 
-		//
 		// collisions detection
-		//
-
 		for (var i = 0; i < nBodies - 1; i++) {
 			var b0 = bodies[i];
 
@@ -185,20 +176,14 @@ var Body = function(body) {
 	this.color = body.color || "#fff";
 	this.mass = body.mass || 1.0;
 
-	//
 	// Node constructor
-	//
-
 	var Vertex = function(parent, vertex) {
 		this.parent = parent;
 		this.position = new Vec2(vertex.x, vertex.y);
 		this.oldPosition = new Vec2(vertex.x, vertex.y);
 	};
 
-	//
 	// verlet integration
-	//
-
 	Vertex.prototype.integrate = function() {
 		var p = this.position, o = this.oldPosition, x = p.x, y = p.y;
 
@@ -207,10 +192,7 @@ var Body = function(body) {
 
 		o.set(x, y);
 
-		//
 		// screen limits
-		//
-
 		if (p.y < 0) p.y = 0;
 		else if (p.y > canvas.height) {
 			p.x -= (p.y - canvas.height) * (p.x - o.x) * kFrictionGround;
@@ -221,10 +203,7 @@ var Body = function(body) {
 		else if (p.x > canvas.width) p.x = canvas.width;
 	};
 
-	//
 	// def vertices
-	//
-
 	for (var n in body.vertices) {
 		var vertex = new Vertex(this, body.vertices[n]);
 		body.vertices[n].ref = vertex;
@@ -308,14 +287,14 @@ Body.prototype.draw = function() {
 
 // collision object
 var collision = {
-	testAxis: new Vec2(),
-	axis: new Vec2(),
-	center: new Vec2(),
-	line: new Vec2(),
-	response: new Vec2(),
-	relVel: new Vec2(),
-	tangent: new Vec2(),
-	relTanVel: new Vec2(),
+	testAxis: new Vector(0, 0),
+	axis: new Vector(0, 0),
+	center: new Vector(0, 0),
+	line: new Vector(0, 0),
+	response: new Vector(0, 0),
+	relVel: new Vector(0, 0),
+	tangent: new Vector(0, 0),
+	relTanVel: new Vector(0, 0),
 	depth: 0,
 	edge: null,
 	vertex: null,
@@ -377,7 +356,7 @@ var collision = {
 		}
 
 		// Make sure that the collision normal is pointing at B1
-		var n = this.center.sub(B0.center, B1.center).dot(this.axis);
+		var n = this.center.min(B0.center, B1.center).dot(this.axis);
 
 		// Revert the collision normal if it points away from B1
 		if (n < 0) this.axis.neg();
@@ -387,7 +366,7 @@ var collision = {
 		for (var i = 0; i < B0.vCount; i++) {
 			// Measure the distance of the vertex from the line using the line equation
 			v = B0.vertices[i];
-			this.line.sub(v.position, B1.center);
+			this.line.min(v.position, B1.center);
 			dist = this.axis.dot(this.line);
 
 			// Set the smallest distance and the collision vertex
@@ -512,3 +491,4 @@ run();
 var w = canvas.width / 35;
 var h = canvas.height / 2 - 4.5 * w;
 createRectangle(50, 50, 50, 50, .1, .1);
+createRectangle(50, 100, 50, 50, .1, .1);
