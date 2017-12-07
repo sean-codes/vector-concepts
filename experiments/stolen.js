@@ -1,11 +1,39 @@
 var scene = new Scene()
 
 scene.step = function(){
-	world.update();
+	for (let body of world.bodies) {
+		if (body.mass) {
+			for (let point of body.points) {
+				point.integrate();
+			}
+		}
+	}
+	for (let body of world.bodies) {
+		body.boundingBox();
+	}
+	world.broadPhase();
+	// SAT collisions and relaxation
+	for (let n = 0, m = world.setup.numIterations; n < m; ++n) {
+		for (let body of world.bodies) {
+			for (let link of body.links) {
+				link.solve();
+			}
+		}
+		for (let i = 0; i < world.iContacts; ++i) {
+			const contact = world.contacts[i];
+			if (contact.sat()) {
+				contact.response();
+			}
+		}
+	}
+	// draw
+	for (let body of world.bodies) {
+		body.draw();
+	}
 
 	// If fall off edge create a new!
-	if (world.bodies.length < 3) {
-		addCrate();
+	if (scene.mouse.up) {
+		addCrate(scene.mouse.pos.x, scene.mouse.pos.y);
 	}
 }
 
@@ -44,16 +72,6 @@ class World {
 		return body;
 	}
 
-	deleteBody(b) {
-		for (let i = 0; i < this.bodies.length; ++i) {
-			if (this.bodies[i] === b) {
-				if (drag === b) drag = null;
-				this.bodies.splice(i, 1);
-				break;
-			}
-		}
-	}
-
 	// test AABB collision
 	AABBColide(x, y, w, h) {
 		for (let b1 of this.bodies) {
@@ -85,42 +103,6 @@ class World {
 					}
 				}
 			}
-		}
-	}
-
-	update() {
-		for (let body of this.bodies) {
-			if (body.mass) {
-				for (let point of body.points) {
-					point.integrate();
-				}
-			}
-		}
-		for (let body of this.bodies) {
-			body.boundingBox();
-			// delete lost bodies
-			if (body.center.y > 2 * scene.height) {
-				this.deleteBody(body);
-			}
-		}
-		this.broadPhase();
-		// SAT collisions and relaxation
-		for (let n = 0, m = this.setup.numIterations; n < m; ++n) {
-			for (let body of this.bodies) {
-				for (let link of body.links) {
-					link.solve();
-				}
-			}
-			for (let i = 0; i < this.iContacts; ++i) {
-				const contact = this.contacts[i];
-				if (contact.sat()) {
-					contact.response();
-				}
-			}
-		}
-		// draw
-		for (let body of this.bodies) {
-			body.draw();
 		}
 	}
 }
@@ -223,21 +205,29 @@ World.Contact = class Contact {
 		}
 		// return collision
 		scene.drawCircle(this.vertex, 5, this.b0.color)
-
+		//scene.stop()
+		//console.log(this)
 		return true;
 	}
 	// collision response
 	response() {
+		// Axis Points
 		const p0 = this.edge.p0;
 		const p1 = this.edge.p1;
-		scene.drawLine(p0, p1, '#F22')
+		// Closest point to s2
 		const v0 = this.vertex;
-		const rx = this.axis.x * this.depth;
+		// Scale the axis to the depth(Overlap)
 		const ry = this.axis.y * this.depth;
+		const rx = this.axis.x * this.depth;
+		// this is weird. If the difference between x is greater than y?
 		const t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
 			? (v0.x - rx - p0.x) / (p1.x - p0.x)
 			: (v0.y - ry - p0.y) / (p1.y - p0.y);
+		//console.log('T: ' + t)
+
+		// why
 		const lambda = 1 / (t * t + (1 - t) * (1 - t));
+		//console.log('lambda: ' + lambda)
 		// mass coefficients
 		let m0 = this.b0.mass;
 		let m1 = this.b1.mass;
@@ -252,11 +242,13 @@ World.Contact = class Contact {
 		v0.x += rx * m0;
 		v0.y += ry * m0;
 		// tangent friction
+		// THIS IS WHERE THE MAGIC IS
 		const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
 		const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
 		const relTv = -rvx * this.axis.y + rvy * this.axis.x;
 		const rtx = -this.axis.y * relTv;
 		const rty = this.axis.x * relTv;
+		console.log(rtx, rty);
 		v0.x -= rtx * this.friction * m0;
 		v0.y -= rty * this.friction * m0;
 		p0.x += rtx * (1 - t) * this.friction * lambda * m1;
@@ -274,6 +266,9 @@ World.Body = class Body {
 		this.points = [];
 		this.edges = [];
 		this.links = [];
+		this.width = Math.abs(points[0][0] - points[1][0])
+		this.height = Math.abs(points[0][1] - points[2][1])
+		console.log(points)
 		this.mass = mass;
 		this.center = new World.Vec();
 		this.half = new World.Vec();
@@ -337,7 +332,7 @@ World.Body = class Body {
 		scene.ctx.translate(x, y);
 		scene.ctx.rotate(Math.atan2(p[1].y - y, p[1].x - x));
 		scene.ctx.strokeStyle = '#000'
-		scene.ctx.strokeRect(0, 0, 50, 50)
+		scene.ctx.strokeRect(0, 0, this.width, this.height)
 		scene.ctx.restore();
 	}
 };
@@ -395,17 +390,17 @@ World.Link = class Link {
  //--------------------------------------------------------------------------------------------//
 let world = new World({
 	gravity: 0.2,
-	friction: 0.4,
-	numIterations: 15,
+	friction: 0.2,
+	numIterations: 5,
 	penetrationTreshold: 0.1
 });
 
 // ground
-world.rectangle( scene.width * 0.5, scene.height + 25, Math.max(400, scene.width), 50, 0);
-function addCrate() {
-	var x = Math.random()*scene.width
-	var y = Math.random()*-200
-	const box = world.rectangle(x, y, 50, 50, 1);
+world.rectangle( scene.width * 0.5, scene.height + 15, Math.max(400, scene.width), 50, 0);
+function addCrate(x, y) {
+	var x = x||Math.random()*scene.width
+	var y = y||Math.random()*-200
+	const box = world.rectangle(x, y, 70, 50, 1);
 	// Add some spin
 	box.points[0].py += 10 * (Math.random() - Math.random());
 }
