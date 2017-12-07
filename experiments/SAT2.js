@@ -42,13 +42,13 @@ function sat(s1, s2) {
       var s2max = undefined
 
       for(var point of s1.points) {
-         var dot = ax.dot(point)
+         var dot = ax.dir.dot(point)
          s1min = s1min ? Math.min(s1min, dot) : dot
          s1max = s1max ? Math.max(s1max, dot) : dot
       }
 
       for(var point of s2.points) {
-         var dot = ax.dot(point)
+         var dot = ax.dir.dot(point)
          s2min = s2min ? Math.min(s2min, dot) : dot
          s2max = s2max ? Math.max(s2max, dot) : dot
       }
@@ -60,7 +60,7 @@ function sat(s1, s2) {
       var overlap = s1max > s2min ? s1max - s2min : s2max - s1min
 
       // If smaller replace
-      var mtv = !mtv || overlap < mtv.length() ? ax.scale(overlap) : mtv
+      var mtv = !mtv || overlap < mtv.length() ? ax.dir.scale(overlap) : mtv
    }
 
    s2.move(mtv)

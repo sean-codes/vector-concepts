@@ -35,13 +35,13 @@ function sat(check) {
          var shapeMax = undefined
          // Gather the Min/Max
          for(var point of shape.points) {
-            var dot = point.dot(ax)
+            var dot = point.dot(ax.dir)
             shapeMin = shapeMin ? Math.min(shapeMin, dot) : dot
             shapeMax = shapeMax ? Math.max(shapeMax, dot) : dot
          }
 
          for( var point of check.points) {
-            var dot = point.dot(ax)
+            var dot = point.dot(ax.dir)
             checkMin = checkMin ? Math.min(checkMin, dot) : dot
             checkMax = checkMax ? Math.max(checkMax, dot) : dot
          }
