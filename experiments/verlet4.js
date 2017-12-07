@@ -1,6 +1,6 @@
 var scene = new Scene()
 scene.ctx.canvas.style.background = '#000'
-scene.setSpeed(10)
+scene.setSpeed(1000/60)
 // Settings
 var set = {
    gravity: new Vector(0, 0.2),
@@ -18,17 +18,19 @@ scene.step = function() {
    scene.clear()
    for(var shape1 of shapes) {
       shape1.points.forEach(function(e){ e.move() })
-      shape1.sticks.forEach(function(e){ e.contrain() })
-      shape1.points.forEach(function(e){ e.draw() })
-      shape1.sticks.forEach(function(e){ e.draw() })
-      scene.drawCircle(shape1.center(), 3, '#465')
-      for(var shape2 of shapes){
-         if(shape1 == shape2) continue
-         sat(shape1, shape2)
-      }
+		for(var i = 0; i < 1; i++){//More passes is stiffer/slower
+	      shape1.sticks.forEach(function(e){ e.contrain() })
+	      scene.drawCircle(shape1.center(), 3, '#465')
+	      for(var shape2 of shapes){
+	         if(shape1 == shape2) continue
+	         sat(shape1, shape2)
+	      }
+		}
+		shape1.points.forEach(function(e){ e.draw() })
+		shape1.sticks.forEach(function(e){ e.draw() })
    }
    if(this.mouse.down){
-      shapes[0].move(this.mouse.pos)
+		shapes.push(new Block(this.mouse.pos.x, this.mouse.pos.y))
    }
 }
 
