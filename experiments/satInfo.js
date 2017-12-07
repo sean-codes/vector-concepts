@@ -1,8 +1,9 @@
 var scene = new Scene()
 var heldShape = 0
-scene.addShape(new Square(scene.width/2 + 30, scene.height/2, 50))
-scene.addShape(new Square(scene.width/2 - 30, scene.height/2, 50))
-
+scene.addShape(new Square(scene.width/2, scene.height/2, 50))
+scene.addShape(new Square(scene.width/2 +100, scene.height/2, 50))
+scene.addShape(new Square(scene.width/2 - 100, scene.height/2, 50))
+scene.shapes[2].rotate(15);
 
 scene.step = function() {
    //scene.shapes[1].rotate(0.5)
