@@ -34,7 +34,6 @@ function sat(s1, s2) {
 
    // Get the axis
    var axis = s1.axis().concat(s2.axis())
-
    // Loop each axis
    for(var ax of axis) {
       // Get min and max of projection on each point
@@ -51,13 +50,29 @@ function sat(s1, s2) {
       if(!info.mtv || Math.abs(overlap) < info.mtv.length()){
          info.overlap = overlap
          info.ax = ax
-         info.mtv = info.ax.scale(overlap)
+         info.mtv = info.ax.dir.scale(overlap)
       }
    }
-
-   s1.move(info.mtv)
-   scene.drawLine(info.ax, info, '#F22')
-   scene.drawText(s1.points[0], info.overlap + ' ' + info.mtv.toString())
+   // Smallest point
+   var closestDistance = 999999
+   var closestPoint = undefined
+   for(var point of s1.points){
+      var dist = point.distance(s2.center())
+      if(dist < closestDistance) {
+         closestPoint = point
+         closestDistance = dist
+      }
+   }
+   scene.drawCircle(s1.center().add(info.mtv), 3, '#F22')
+   scene.drawLine(s1.center().add(info.mtv), s1.center(), '#F22')
+   scene.drawLine(
+      s1.center().clone().add(info.mtv).add(info.ax.dir.clone().cross().scale(1)),
+      s1.center().clone().add(info.mtv).add(info.ax.dir.clone().cross().scale(-1)),
+      '#F22')
+   scene.drawCircle(closestPoint, 3, '#F22')
+   scene.drawLine(info.ax.points[0], info.ax.points[1], '#FFF')
+   scene.drawText(s1.points[0], info.mtv.toString())
+   //s1.move(info.mtv)
    return true
 }
 
@@ -65,7 +80,7 @@ function project(shape, ax){
    var min = undefined, max = undefined
 
    for(var point of shape.points){
-      var dot = ax.dot(point)
+      var dot = ax.dir.dot(point)
       min = min ? Math.min(min, dot) : dot
       max = max ? Math.max(max, dot) : dot
    }
