@@ -10,8 +10,9 @@ var set = {
 
 // Create objects
 var shapes = []
-shapes.push(new Block(scene.width/2+180, 20, 5))
+shapes.push(new Block(scene.width/2+170, 20, 15))
 shapes.push(new Block(scene.width/2+180, 100))
+shapes.push(new Block(scene.width/2+140, 100))
 
 scene.step = function() {
    scene.clear()
@@ -85,7 +86,7 @@ function Block(x, y, direction) {
    this.move = function(pos){
       var move = this.points[0].pos.clone().min(pos.clone())
       for(var point of this.points){
-         point.pos.min(move)
+         point.pos.add(move)
       }
    }
 
@@ -190,10 +191,24 @@ function sat(s1, s2) {
       // If smaller replace
       if(!info.mtv || overlap < info.mtv.length()){
          info.ax = ax
-         info.mtv = info.ax.dir.scale(overlap)
+         info.mtv = info.ax.dir.scale(-overlap)
       }
    }
-   //s2.move(info.mtv)
+   // Smallest point
+   var closestDistance = 999999
+   var closestPoint = undefined
+   for(var point of s1.points){
+      var dist = point.pos.distance(s2.center())
+      if(dist < closestDistance) {
+         closestPoint = point
+         closestDistance = dist
+      }
+   }
+   console.log('mtv', info.mtv)
+   //s1.move(info.mtv)
+
+   closestPoint.pos.add(info.mtv.scale(0.9))
    scene.drawLine(info.ax.points[0].pos, info.ax.points[1].pos, '#F22')
+   //scene.stop()
    return true
 }
