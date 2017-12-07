@@ -81,7 +81,10 @@ class Shape {
       for(var i = 0; i < this.points.length; i++){
          var point1 = this.points[i]
          var point2 = this.points[i-1] || this.points[this.points.length-1]
-         axis.push(point2.clone().min(point1).unit().cross())
+         axis.push({
+            dir: point2.clone().min(point1).unit().cross(),
+            points: [point1, point2]
+         })
       }
 
       //return [new Vector(1, 0), new Vector(-1, 0)]
