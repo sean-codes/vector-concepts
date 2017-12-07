@@ -16,7 +16,8 @@ class Scene {
       this.center = new Vector(this.width/2, this.height/2)
       this.mouse = {
          pos: new Vector(0, 0),
-         down: false
+         down: false,
+			up: false
       }
 
       this.listen()
@@ -55,6 +56,7 @@ class Scene {
          this.debugPos = this.debugPos.set(10, 0)
          this.clear()
          this.step()
+			this.mouse.up = false
       }, this.speed)
    }
 
@@ -129,7 +131,7 @@ class Scene {
    }
 
    mouseup(){
-
+		this.mouse.up = true
       this.mouse.down = false
    }
 
