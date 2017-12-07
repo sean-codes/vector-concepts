@@ -1,494 +1,411 @@
-// Verlet physics engine
-var canvas = document.querySelector('canvas')
-var ctx = canvas.getContext('2d')
-var verletEngine = {};
+var scene = new Scene()
 
-var kGravity = 0.1,
-    kNumIterations = 5,
-    kFriction = 5,
-    kFrictionGround = 0.2,
-    kViscosity = 1.0
-var bodies = [], vertices = [], constraints = [];
+scene.step = function(){
+	world.update();
 
-var Vec2 = function(x, y) {
-	this.x = x || 0.0;
-	this.y = y || 0.0;
-};
+	// If fall off edge create a new!
+	if (world.bodies.length < 3) {
+		addCrate();
+	}
+}
 
-Vec2.prototype = {
-	set: function(x, y) {
+//--------------------------------------------------------------------------------------------//
+// World
+//--------------------------------------------------------------------------------------------//
+class World {
+	constructor(setup) {
+		this.setup = setup;
+		this.bodies = [];
+		this.contacts = [];
+		this.nContacts = 0;
+		this.iContacts = 0;
+	}
+
+	rectangle(x, y, w, h, m) {
+		w = w * 0.5;
+		h = h * 0.5;
+		const body = new World.Body(
+			this,
+			[[x - w, y - h], [x + w, y - h], [x + w, y + h], [x - w, y + h]],
+			[
+				[0, 1, true],
+				[1, 2, true],
+				[2, 3, true],
+				[3, 0, true],
+				[0, 2, false],
+				[1, 3, false]
+			],
+			m,
+			this.setup.gravity
+		);
+		body.boundingBox();
+		body.color = scene.randomColor()
+		this.bodies.push(body);
+		return body;
+	}
+
+	deleteBody(b) {
+		for (let i = 0; i < this.bodies.length; ++i) {
+			if (this.bodies[i] === b) {
+				if (drag === b) drag = null;
+				this.bodies.splice(i, 1);
+				break;
+			}
+		}
+	}
+
+	// test AABB collision
+	AABBColide(x, y, w, h) {
+		for (let b1 of this.bodies) {
+			const dx = Math.abs(b1.center.x - x) - (b1.half.x + w * 0.5);
+			const dy = Math.abs(b1.center.y - y) - (b1.half.y + h * 0.5);
+			if (dx < 0 && dy < 0) return true;
+		}
+		return false;
+	}
+
+	// AABB broad phase
+	broadPhase() {
+		this.iContacts = 0;
+		for (let i = 0; i < this.bodies.length - 1; ++i) {
+			const b0 = this.bodies[i];
+			for (let j = i + 1; j < this.bodies.length; ++j) {
+				const b1 = this.bodies[j];
+				if (b0.mass || b1.mass) {
+					const dx = Math.abs(b1.center.x - b0.center.x) - (b1.half.x + b0.half.x);
+					const dy = Math.abs(b1.center.y - b0.center.y) - (b1.half.y + b0.half.y);
+					if (dx < 0 && dy < 0) {
+						// update contacts
+						this.iContacts++;
+						if (this.iContacts > this.nContacts) {
+							this.contacts.push(new World.Contact(this.setup));
+							this.nContacts++;
+						}
+						this.contacts[this.iContacts - 1].set(b0, b1);
+					}
+				}
+			}
+		}
+	}
+
+	update() {
+		for (let body of this.bodies) {
+			if (body.mass) {
+				for (let point of body.points) {
+					point.integrate();
+				}
+			}
+		}
+		for (let body of this.bodies) {
+			body.boundingBox();
+			// delete lost bodies
+			if (body.center.y > 2 * scene.height) {
+				this.deleteBody(body);
+			}
+		}
+		this.broadPhase();
+		// SAT collisions and relaxation
+		for (let n = 0, m = this.setup.numIterations; n < m; ++n) {
+			for (let body of this.bodies) {
+				for (let link of body.links) {
+					link.solve();
+				}
+			}
+			for (let i = 0; i < this.iContacts; ++i) {
+				const contact = this.contacts[i];
+				if (contact.sat()) {
+					contact.response();
+				}
+			}
+		}
+		// draw
+		for (let body of this.bodies) {
+			body.draw();
+		}
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------//
+// Vector Class
+//--------------------------------------------------------------------------------------------//
+World.Vec = class Vec {
+	constructor(x = 0.0, y = 0.0) {
+		this.x = x;
+		this.y = y;
+	}
+	set(x, y) {
 		this.x = x;
 		this.y = y;
 		return this;
-	},
-
-	copy: function(v) {
+	}
+	copy(v) {
 		this.x = v.x;
 		this.y = v.y;
 		return this;
-	},
-
-	neg: function() {
+	}
+	neg() {
 		this.x = -this.x;
 		this.y = -this.y;
 		return this;
-	},
-
-	sub: function(v0, v1) {
-		this.x = v0.x - v1.x;
-		this.y = v0.y - v1.y;
-		return this;
-	},
-
-	scale: function(v, s) {
-		this.x = v.x * s;
-		this.y = v.y * s;
-		return this;
-	},
-
-	dot: function(v) {
+	}
+	dot(v) {
 		return this.x * v.x + this.y * v.y;
-	},
-
-	squareDist: function(v) {
-		var dx = this.x - v.x;
-		var dy = this.y - v.y;
-		return dx * dx + dy * dy;
-	},
-
-	length: function() {
-		return Math.sqrt(this.x * this.x + this.y * this.y);
-	},
-
-	perp: function(v) {
-		this.x = -v.y;
-		this.y = v.x;
-		return this;
-	},
-
-	normal: function(v0, v1) {
-		// perpendicular
-		var nx = v0.y - v1.y, ny = v1.x - v0.x;
-		// normalize
-		var len = 1.0 / Math.sqrt(nx * nx + ny * ny);
+	}
+	normal(p0, p1) {
+		const nx = p0.y - p1.y;
+		const ny = p1.x - p0.x;
+		const len = 1.0 / Math.sqrt(nx * nx + ny * ny);
 		this.x = nx * len;
 		this.y = ny * len;
 		return this;
 	}
-};
-
-// animation loop
-var run = function() {
-	requestAnimationFrame(run);
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	integrate();
-	solve();
-	draw();
-};
-
-// draw bodies loop
-var draw = function() {
-	for (var i = 0, n = bodies.length; i < n; i++) {
-		bodies[i].draw();
+	lineDistance(p0, p1) {
+		return this.x * (p0.x - p1.x) + this.y * (p0.y - p1.y);
 	}
 };
 
-// Verlet integration loop
-var integrate = function() {
-	for (var i = 0, n = vertices.length; i < n; i++) {
-		vertices[i].integrate();
+//--------------------------------------------------------------------------------------------//
+// Contact Pair
+//--------------------------------------------------------------------------------------------//
+World.Contact = class Contact {
+	constructor(setup) {
+		this.b0 = null;
+		this.b1 = null;
+		this.edge = null;
+		this.vertex = null;
+		this.axis = new World.Vec();
+		this.depth = 0.0;
+		this.penetrationTreshold = setup.penetrationTreshold || 0.1;
+		this.friction = setup.friction || 0.0;
 	}
-};
-
-// solve constraints and collisions
-
-var solve = function() {
-	var nBodies = bodies.length, nConstraints = constraints.length;
-
-	for (var n = 0; n < kNumIterations; n++) {
-		// solve constraints
-		for (var i = 0; i < nConstraints; i++) {
-			constraints[i].solve();
-		}
-
-		// Recalculate the bounding boxes
-		for (var i = 0; i < nBodies; i++) {
-			bodies[i].boundingBox();
-		}
-
-		// collisions detection
-		for (var i = 0; i < nBodies - 1; i++) {
-			var b0 = bodies[i];
-
-			for (var j = i + 1; j < nBodies; j++) {
-				var b1 = bodies[j];
-				collision.SAT(b0, b1) && collision.resolve();
-			}
-		}
+	set(b0, b1) {
+		this.b0 = b0;
+		this.b1 = b1;
 	}
-};
-
-
-// constraint constructor
-var Constraint = function(parent, v0, v1, edge) {
-	this.parent = parent;
-	this.v0 = v0;
-	this.v1 = v1;
-	this.p0 = v0.position;
-	this.p1 = v1.position;
-	this.dist = this.p0.squareDist(this.p1);
-	this.edge = edge;
-};
-
-// solve constraint
-Constraint.prototype.solve = function() {
-	var dx = this.p1.x - this.p0.x;
-	var dy = this.p1.y - this.p0.y;
-
-	// using square root approximation
-
-	var delta = this.dist / (dx * dx + dy * dy + this.dist) - 0.5;
-
-	dx *= delta;
-	dy *= delta;
-
-	this.p1.x += dx;
-	this.p1.y += dy;
-	this.p0.x -= dx;
-	this.p0.y -= dy;
-};
-
-// body constructor
-
-var Body = function(body) {
-	//
-	// body properties
-	//
-	this.vCount = 0;
-	this.eCount = 0;
-	this.vertices = [];
-	this.positions = [];
-	this.edges = [];
-	this.center = new Vec2();
-	this.halfEx = new Vec2();
-	this.min = 0;
-	this.max = 0;
-	this.color = body.color || "#fff";
-	this.mass = body.mass || 1.0;
-
-	// Node constructor
-	var Vertex = function(parent, vertex) {
-		this.parent = parent;
-		this.position = new Vec2(vertex.x, vertex.y);
-		this.oldPosition = new Vec2(vertex.x, vertex.y);
-	};
-
-	// verlet integration
-	Vertex.prototype.integrate = function() {
-		var p = this.position, o = this.oldPosition, x = p.x, y = p.y;
-
-		p.x += kViscosity * p.x - kViscosity * o.x;
-		p.y += kViscosity * p.y - kViscosity * o.y + kGravity;
-
-		o.set(x, y);
-
-		// screen limits
-		if (p.y < 0) p.y = 0;
-		else if (p.y > canvas.height) {
-			p.x -= (p.y - canvas.height) * (p.x - o.x) * kFrictionGround;
-			p.y = canvas.height;
-		}
-
-		if (p.x < 0) p.x = 0;
-		else if (p.x > canvas.width) p.x = canvas.width;
-	};
-
-	// def vertices
-	for (var n in body.vertices) {
-		var vertex = new Vertex(this, body.vertices[n]);
-		body.vertices[n].ref = vertex;
-		this.vertices.push(vertex);
-		this.positions.push(vertex.position);
-		vertices.push(vertex);
-		this.vCount++;
-	}
-
-	//
-	// def constraints
-	//
-
-	for (var i = 0; i < body.constraints.length; i++) {
-		var bci = body.constraints[i];
-
-		var constraint = new Constraint(
-			this,
-			body.vertices[bci[0]].ref,
-			body.vertices[bci[1]].ref,
-			bci[2] || false
-		);
-
-		if (constraint.edge) {
-			this.edges.push(constraint);
-			this.eCount++;
-		}
-
-		constraints.push(constraint);
-	}
-};
-
-// bounding box
-Body.prototype.boundingBox = function() {
-	var minX = 99999.0, minY = 99999.0, maxX = -99999.0, maxY = -99999.0;
-
-	for (var i = 0; i < this.vCount; i++) {
-		var p = this.positions[i];
-
-		if (p.x > maxX) maxX = p.x;
-		if (p.y > maxY) maxY = p.y;
-		if (p.x < minX) minX = p.x;
-		if (p.y < minY) minY = p.y;
-	}
-
-	// center
-	this.center.set((minX + maxX) * 0.5, (minY + maxY) * 0.5);
-
-	// half extents
-	this.halfEx.set((maxX - minX) * 0.5, (maxY - minY) * 0.5);
-};
-
-// Project the vertices onto the axis
-Body.prototype.projectAxis = function(axis) {
-	var d = this.positions[0].dot(axis);
-	this.min = this.max = d;
-
-	for (var i = 1; i < this.vCount; i++) {
-		d = this.positions[i].dot(axis);
-		if (d > this.max) this.max = d;
-		if (d < this.min) this.min = d;
-	}
-};
-
-// draw body
-Body.prototype.draw = function() {
-	ctx.beginPath();
-	var p = this.edges[0].p0;
-	ctx.moveTo(p.x, p.y);
-
-	for (var i = 1; i < this.eCount; i++) {
-		p = this.edges[i].p0;
-		ctx.lineTo(p.x, p.y);
-	}
-
-	ctx.closePath;
-	ctx.fillStyle = this.color;
-	ctx.fill();
-
-};
-
-// collision object
-var collision = {
-	testAxis: new Vector(0, 0),
-	axis: new Vector(0, 0),
-	center: new Vector(0, 0),
-	line: new Vector(0, 0),
-	response: new Vector(0, 0),
-	relVel: new Vector(0, 0),
-	tangent: new Vector(0, 0),
-	relTanVel: new Vector(0, 0),
-	depth: 0,
-	edge: null,
-	vertex: null,
-
-	//
-	// Separating Axis Theorem collision test
-	//
-
-	SAT: function(B0, B1) {
-		//
-		// aabb overlap test
-		//
-
-		if (
-			!(0 > Math.abs(B1.center.x - B0.center.x) - (B1.halfEx.x + B0.halfEx.x) &&
-				0 > Math.abs(B1.center.y - B0.center.y) - (B1.halfEx.y + B0.halfEx.y))
-		)
-			return false; // no aabb overlap
-
-		//
-		// SAT collision detection
-		//
-
-		var minDistance = 99999, n0 = B0.eCount, n1 = B1.eCount;
-
-		// Iterate through all of the edges of both bodies
-		for (var i = 0, n = n0 + n1; i < n; i++) {
-			// get edge
-			var edge = i < n0 ? B0.edges[i] : B1.edges[i - n0];
-
-			// Calculate the perpendicular to this edge and normalize it
-			this.testAxis.normal(edge.p0, edge.p1);
-
-			// Project both bodies onto the normal
-			B0.projectAxis(this.testAxis);
-			B1.projectAxis(this.testAxis);
-
-			//Calculate the distance between the two intervals
-			var dist = B0.min < B1.min ? B1.min - B0.max : B0.min - B1.max;
-
-			// If the intervals don't overlap, return, since there is no collision
+	// Separating Axis Theorem collision
+	sat() {
+		let minDistance = 999999;
+		const n0 = this.b0.edges.length;
+		const n1 = this.b1.edges.length;
+		for (let i = 0, n = n0 + n1; i < n; ++i) {
+			const edge = i < n0 ? this.b0.edges[i] : this.b1.edges[i - n0];
+			const [min0, max0] = this.b0.projectAxis(edge);
+			const [min1, max1] = this.b1.projectAxis(edge);
+			let dist = min0 < min1 ? min1 - max0 : min0 - max1;
 			if (dist > 0) return false;
-			else if (Math.abs(dist) < minDistance) {
-				minDistance = Math.abs(dist);
-
-				// Save collision information
-				this.axis.copy(this.testAxis);
+			dist = -dist;
+			if (dist < minDistance) {
+				minDistance = dist;
 				this.edge = edge;
 			}
 		}
-
+		if (minDistance < this.penetrationTreshold) return false;
+		this.axis.copy(this.edge.axis);
 		this.depth = minDistance;
-
-		// Ensure collision edge in B1 and collision vertex in B0
-		if (this.edge.parent != B1) {
-			var t = B1;
-			B1 = B0;
-			B0 = t;
+		if (this.edge.body !== this.b1) {
+			const tmp = this.b0;
+			this.b0 = this.b1;
+			this.b1 = tmp;
 		}
-
-		// Make sure that the collision normal is pointing at B1
-		var n = this.center.min(B0.center, B1.center).dot(this.axis);
-
-		// Revert the collision normal if it points away from B1
-		if (n < 0) this.axis.neg();
-
-		var smallestDist = 99999, v, dist;
-
-		for (var i = 0; i < B0.vCount; i++) {
-			// Measure the distance of the vertex from the line using the line equation
-			v = B0.vertices[i];
-			this.line.min(v.position, B1.center);
-			dist = this.axis.dot(this.line);
-
-			// Set the smallest distance and the collision vertex
+		const n = this.axis.lineDistance(this.b0.center, this.b1.center);
+		if (n < 0) {
+			this.axis.neg();
+		}
+		let smallestDist = 999999;
+		for (let point of this.b0.points) {
+			const dist = this.axis.lineDistance(point, this.b1.center);
 			if (dist < smallestDist) {
 				smallestDist = dist;
-				this.vertex = v;
+				this.vertex = point;
+
 			}
 		}
+		// return collision
+		scene.drawCircle(this.vertex, 5, this.b0.color)
 
-		// There is no separating axis. Report a collision!
 		return true;
-	},
+	}
+	// collision response
+	response() {
+		const p0 = this.edge.p0;
+		const p1 = this.edge.p1;
+		scene.drawLine(p0, p1, '#F22')
+		const v0 = this.vertex;
+		const rx = this.axis.x * this.depth;
+		const ry = this.axis.y * this.depth;
+		const t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
+			? (v0.x - rx - p0.x) / (p1.x - p0.x)
+			: (v0.y - ry - p0.y) / (p1.y - p0.y);
+		const lambda = 1 / (t * t + (1 - t) * (1 - t));
+		// mass coefficients
+		let m0 = this.b0.mass;
+		let m1 = this.b1.mass;
+		const tm = m0 + m1;
+		m0 = m0 / tm;
+		m1 = m1 / tm;
+		// apply collision response
+		p0.x -= rx * (1 - t) * lambda * m1;
+		p0.y -= ry * (1 - t) * lambda * m1;
+		p1.x -= rx * t * lambda * m1;
+		p1.y -= ry * t * lambda * m1;
+		v0.x += rx * m0;
+		v0.y += ry * m0;
+		// tangent friction
+		const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
+		const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
+		const relTv = -rvx * this.axis.y + rvy * this.axis.x;
+		const rtx = -this.axis.y * relTv;
+		const rty = this.axis.x * relTv;
+		v0.x -= rtx * this.friction * m0;
+		v0.y -= rty * this.friction * m0;
+		p0.x += rtx * (1 - t) * this.friction * lambda * m1;
+		p0.y += rty * (1 - t) * this.friction * lambda * m1;
+		p1.x += rtx * t * this.friction * lambda * m1;
+		p1.y += rty * t * this.friction * lambda * m1;
+	}
+}
 
-	//
-	// collision resolution
-	//
-
-	resolve: function() {
-		// cache vertices positions
-		var p0 = this.edge.p0,
-			p1 = this.edge.p1,
-			o0 = this.edge.v0.oldPosition,
-			o1 = this.edge.v1.oldPosition,
-			vp = this.vertex.position,
-			vo = this.vertex.oldPosition,
-			rs = this.response;
-
-		// response vector
-		this.response.scale(this.axis, this.depth);
-
-		// calculate where on the edge the collision vertex lies
-		var t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
-			? (vp.x - rs.x - p0.x) / (p1.x - p0.x)
-			: (vp.y - rs.y - p0.y) / (p1.y - p0.y);
-		var lambda = 1 / (t * t + (1 - t) * (1 - t));
-
-		// mass coefficient
-		var m0 = this.vertex.parent.mass,
-			m1 = this.edge.parent.mass,
-			tm = m0 + m1,
-			m0 = m0 / tm,
-			m1 = m1 / tm;
-
-		// apply the collision response
-		p0.x -= rs.x * (1 - t) * lambda * m0;
-		p0.y -= rs.y * (1 - t) * lambda * m0;
-		p1.x -= rs.x * t * lambda * m0;
-		p1.y -= rs.y * t * lambda * m0;
-
-		vp.x += rs.x * m1;
-		vp.y += rs.y * m1;
-
-		//
-		// collision friction
-		//
-
-		// compute relative velocity
-		this.relVel.set(
-			vp.x - vo.x - (p0.x + p1.x - o0.x - o1.x) * 0.5,
-			vp.y - vo.y - (p0.y + p1.y - o0.y - o1.y) * 0.5
-		);
-
-		// axis perpendicular
-		this.tangent.perp(this.axis);
-
-		// project the relative velocity onto tangent
-		var relTv = this.relVel.dot(this.tangent);
-		var rt = this.relTanVel.set(this.tangent.x * relTv, this.tangent.y * relTv);
-
-		// apply tangent friction
-		vo.x += rt.x * kFriction * m1;
-		vo.y += rt.y * kFriction * m1;
-
-		o0.x -= rt.x * (1 - t) * kFriction * lambda * m0;
-		o0.y -= rt.y * (1 - t) * kFriction * lambda * m0;
-		o1.x -= rt.x * t * kFriction * lambda * m0;
-		o1.y -= rt.y * t * kFriction * lambda * m0;
+//--------------------------------------------------------------------------------------------//
+// Body Class
+//--------------------------------------------------------------------------------------------//
+World.Body = class Body {
+	constructor(world, points, links, mass, gravity) {
+		this.points = [];
+		this.edges = [];
+		this.links = [];
+		this.mass = mass;
+		this.center = new World.Vec();
+		this.half = new World.Vec();
+		this.texture = null;
+		// vertices
+		for (let p of points) {
+			const point = new World.Point(p[0], p[1], gravity);
+			this.points.push(point);
+		}
+		// constraints
+		for (let l of links) {
+			const link = new World.Link(this, this.points[l[0]], this.points[l[1]]);
+			this.links.push(link);
+			if (l[2]) this.edges.push(link);
+		}
+	}
+	// rotate static body
+	rotate(a) {
+		for (let p of this.points) {
+			p.px = p.x;
+			p.py = p.y;
+			const dx = p.x - this.center.x;
+			const dy = p.y - this.center.y;
+			const d = Math.sqrt(dx * dx + dy * dy);
+			const ia = Math.atan2(dy, dx);
+			p.x = this.center.x + Math.cos(ia + a) * d;
+			p.y = this.center.y + Math.sin(ia + a) * d;
+		}
+	}
+	// update AABB bounding box
+	boundingBox() {
+		let minX = 999999;
+		let minY = 999999;
+		let maxX = -999999;
+		let maxY = -999999;
+		for (let point of this.points) {
+			if (point.x > maxX) maxX = point.x;
+			if (point.x < minX) minX = point.x;
+			if (point.y > maxY) maxY = point.y;
+			if (point.y < minY) minY = point.y;
+		}
+		this.center.set((minX + maxX) * 0.5, (minY + maxY) * 0.5);
+		this.half.set((maxX - minX) * 0.5, (maxY - minY) * 0.5);
+	}
+	projectAxis(edge) {
+		edge.axis.normal(edge.p0, edge.p1);
+		let max = -99999;
+		let min = 99999;
+		for (let point of this.points) {
+			const d = edge.axis.dot(point);
+			if (d > max) max = d;
+			if (d < min) min = d;
+		}
+		return [min, max];
+	}
+	draw() {
+		const p = this.points;
+		const x = p[0].x;
+		const y = p[0].y;
+		scene.ctx.save();
+		scene.ctx.translate(x, y);
+		scene.ctx.rotate(Math.atan2(p[1].y - y, p[1].x - x));
+		scene.ctx.strokeStyle = '#000'
+		scene.ctx.strokeRect(0, 0, 50, 50)
+		scene.ctx.restore();
 	}
 };
 
-// external API
-var createRectangle = function(x, y, w, h, m, c) {
-	var b = new Body({
-		mass: m,
-		color: c,
-		vertices: {
-			n0: { x: x, y: y },
-			n1: { x: x + w, y: y },
-			n2: { x: x + w, y: y + h },
-			n3: { x: x, y: y + h }
-		},
-		constraints: [
-			["n0", "n1", true],
-			["n1", "n2", true],
-			["n2", "n3", true],
-			["n3", "n0", true],
-			["n0", "n2"],
-			["n3", "n1"]
-		]
-	});
-	bodies.push(b);
-	return b;
+//--------------------------------------------------------------------------------------------//
+// Points
+//--------------------------------------------------------------------------------------------//
+World.Point = class Point {
+	constructor(x, y, gravity) {
+		this.x = x;
+		this.y = y;
+		this.px = x;
+		this.py = y;
+		this.gravity = gravity;
+	}
+	squareDist(v) {
+		const dx = this.x - v.x;
+		const dy = this.y - v.y;
+		return dx * dx + dy * dy;
+	}
+	integrate() {
+		const x = this.x;
+		const y = this.y;
+		this.x += this.x - this.px;
+		this.y += this.y - this.py + this.gravity;
+		this.px = x;
+		this.py = y;
+	}
+};
+//--------------------------------------------------------------------------------------------//
+// Link Class (Sticks)
+//--------------------------------------------------------------------------------------------//
+World.Link = class Link {
+	constructor(body, p0, p1) {
+		this.p0 = p0;
+		this.p1 = p1;
+		this.body = body;
+		this.squareRest = p0.squareDist(p1);
+		this.axis = new World.Vec();
+	}
+	// solve constraint
+	solve() {
+		const dx = this.p1.x - this.p0.x;
+		const dy = this.p1.y - this.p0.y;
+		const delta = this.squareRest / (dx * dx + dy * dy + this.squareRest) - 0.5;
+		this.p1.x += dx * delta;
+		this.p1.y += dy * delta;
+		this.p0.x -= dx * delta;
+		this.p0.y -= dy * delta;
+	}
 };
 
+ //--------------------------------------------------------------------------------------------//
+ // Startup
+ //--------------------------------------------------------------------------------------------//
+let world = new World({
+	gravity: 0.2,
+	friction: 0.4,
+	numIterations: 15,
+	penetrationTreshold: 0.1
+});
 
-
-var createJoint = function(B0, v0, B1, v1) {
-	var constraint = new Constraint(
-		null,
-		B0.vertices[v0],
-		B1.vertices[v1],
-		false
-	);
-
-	constraints.push(constraint);
-};
-
-
-run();
-
-
-var w = canvas.width / 35;
-var h = canvas.height / 2 - 4.5 * w;
-createRectangle(50, 50, 50, 50, .1, .1);
-createRectangle(50, 100, 50, 50, .1, .1);
+// ground
+world.rectangle( scene.width * 0.5, scene.height + 25, Math.max(400, scene.width), 50, 0);
+function addCrate() {
+	var x = Math.random()*scene.width
+	var y = Math.random()*-200
+	const box = world.rectangle(x, y, 50, 50, 1);
+	// Add some spin
+	box.points[0].py += 10 * (Math.random() - Math.random());
+}
