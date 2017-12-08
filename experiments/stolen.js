@@ -1,5 +1,5 @@
 var scene = new Scene()
-
+scene.setSpeed(30);
 scene.step = function(){
 	for (let body of world.bodies) {
 		if (body.mass) {
@@ -11,7 +11,6 @@ scene.step = function(){
 	for (let body of world.bodies) {
 		body.boundingBox();
 	}
-	world.broadPhase();
 	// SAT collisions and relaxation
 	for (let n = 0, m = world.setup.numIterations; n < m; ++n) {
 		for (let body of world.bodies) {
@@ -19,10 +18,13 @@ scene.step = function(){
 				link.solve();
 			}
 		}
-		for (let i = 0; i < world.iContacts; ++i) {
-			const contact = world.contacts[i];
-			if (contact.sat()) {
-				contact.response();
+		for(var box1 of world.bodies) {
+			for( var box2 of world.bodies ) {
+				var test = new World.Contact(world.setup)
+				if (box1 != box2) {
+					test.set(box1, box2)
+					test.sat()
+				}
 			}
 		}
 	}
@@ -70,40 +72,6 @@ class World {
 		body.color = scene.randomColor()
 		this.bodies.push(body);
 		return body;
-	}
-
-	// test AABB collision
-	AABBColide(x, y, w, h) {
-		for (let b1 of this.bodies) {
-			const dx = Math.abs(b1.center.x - x) - (b1.half.x + w * 0.5);
-			const dy = Math.abs(b1.center.y - y) - (b1.half.y + h * 0.5);
-			if (dx < 0 && dy < 0) return true;
-		}
-		return false;
-	}
-
-	// AABB broad phase
-	broadPhase() {
-		this.iContacts = 0;
-		for (let i = 0; i < this.bodies.length - 1; ++i) {
-			const b0 = this.bodies[i];
-			for (let j = i + 1; j < this.bodies.length; ++j) {
-				const b1 = this.bodies[j];
-				if (b0.mass || b1.mass) {
-					const dx = Math.abs(b1.center.x - b0.center.x) - (b1.half.x + b0.half.x);
-					const dy = Math.abs(b1.center.y - b0.center.y) - (b1.half.y + b0.half.y);
-					if (dx < 0 && dy < 0) {
-						// update contacts
-						this.iContacts++;
-						if (this.iContacts > this.nContacts) {
-							this.contacts.push(new World.Contact(this.setup));
-							this.nContacts++;
-						}
-						this.contacts[this.iContacts - 1].set(b0, b1);
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -168,10 +136,8 @@ World.Contact = class Contact {
 	// Separating Axis Theorem collision
 	sat() {
 		let minDistance = 999999;
-		const n0 = this.b0.edges.length;
-		const n1 = this.b1.edges.length;
-		for (let i = 0, n = n0 + n1; i < n; ++i) {
-			const edge = i < n0 ? this.b0.edges[i] : this.b1.edges[i - n0];
+		var edges = this.b0.edges.concat(this.b1.edges)
+		for(var edge of edges) {
 			const [min0, max0] = this.b0.projectAxis(edge);
 			const [min1, max1] = this.b1.projectAxis(edge);
 			let dist = min0 < min1 ? min1 - max0 : min0 - max1;
@@ -182,7 +148,6 @@ World.Contact = class Contact {
 				this.edge = edge;
 			}
 		}
-		if (minDistance < this.penetrationTreshold) return false;
 		this.axis.copy(this.edge.axis);
 		this.depth = minDistance;
 		if (this.edge.body !== this.b1) {
@@ -203,58 +168,45 @@ World.Contact = class Contact {
 
 			}
 		}
-		// return collision
-		scene.drawCircle(this.vertex, 5, this.b0.color)
-		//scene.stop()
-		//console.log(this)
-		return true;
-	}
-	// collision response
-	response() {
 		// Axis Points
 		const p0 = this.edge.p0;
 		const p1 = this.edge.p1;
+		scene.debugLine(p0, p1, '#FFF')
 		// Closest point to s2
 		const v0 = this.vertex;
 		// Scale the axis to the depth(Overlap)
 		const ry = this.axis.y * this.depth;
 		const rx = this.axis.x * this.depth;
-		// this is weird. If the difference between x is greater than y?
-		const t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
+		// this is weird. If the difference between x is greater than y
+		// Turnability
+		var t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
 			? (v0.x - rx - p0.x) / (p1.x - p0.x)
 			: (v0.y - ry - p0.y) / (p1.y - p0.y);
-		//console.log('T: ' + t)
-
-		// why
-		const lambda = 1 / (t * t + (1 - t) * (1 - t));
-		//console.log('lambda: ' + lambda)
+		//console.log(t)
+		//var t = 0.5
 		// mass coefficients
 		let m0 = this.b0.mass;
 		let m1 = this.b1.mass;
-		const tm = m0 + m1;
-		m0 = m0 / tm;
-		m1 = m1 / tm;
 		// apply collision response
-		p0.x -= rx * (1 - t) * lambda * m1;
-		p0.y -= ry * (1 - t) * lambda * m1;
-		p1.x -= rx * t * lambda * m1;
-		p1.y -= ry * t * lambda * m1;
+		p0.x -= rx * (1 - t) * m1;
+		p0.y -= ry * (1 - t) * m1;
+		p1.x -= rx * t * m1;
+		p1.y -= ry * t * m1;
 		v0.x += rx * m0;
 		v0.y += ry * m0;
 		// tangent friction
-		// THIS IS WHERE THE MAGIC IS
-		const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
-		const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
-		const relTv = -rvx * this.axis.y + rvy * this.axis.x;
-		const rtx = -this.axis.y * relTv;
-		const rty = this.axis.x * relTv;
-		console.log(rtx, rty);
-		v0.x -= rtx * this.friction * m0;
-		v0.y -= rty * this.friction * m0;
-		p0.x += rtx * (1 - t) * this.friction * lambda * m1;
-		p0.y += rty * (1 - t) * this.friction * lambda * m1;
-		p1.x += rtx * t * this.friction * lambda * m1;
-		p1.y += rty * t * this.friction * lambda * m1;
+		// THIS IS THE FRICTION / DAMPENING
+		// const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
+		// const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
+		// const relTv = -rvx * this.axis.y + rvy * this.axis.x;
+		// const rtx = -this.axis.y * relTv;
+		// const rty = this.axis.x * relTv;
+		// v0.x -= rtx * this.friction * m0;
+		// v0.y -= rty * this.friction * m0;
+		// p0.x += rtx * (1 - t) * this.friction *  m1;
+		// p0.y += rty * (1 - t) * this.friction *  m1;
+		// p1.x += rtx * t * this.friction *  m1;
+		// p1.y += rty * t * this.friction *  m1;
 	}
 }
 
@@ -268,7 +220,6 @@ World.Body = class Body {
 		this.links = [];
 		this.width = Math.abs(points[0][0] - points[1][0])
 		this.height = Math.abs(points[0][1] - points[2][1])
-		console.log(points)
 		this.mass = mass;
 		this.center = new World.Vec();
 		this.half = new World.Vec();
@@ -391,7 +342,7 @@ World.Link = class Link {
 let world = new World({
 	gravity: 0.2,
 	friction: 0.2,
-	numIterations: 5,
+	numIterations: 1,
 	penetrationTreshold: 0.1
 });
 
