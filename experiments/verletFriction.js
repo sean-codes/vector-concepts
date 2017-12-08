@@ -1,46 +1,46 @@
 var scene = new Scene()
+scene.setSpeed(30)
 scene.ctx.canvas.style.background = '#111'
 // Settings
 var set = {
    gravity: new Vector(0, 0.2),
    bounce: 0.9,
-   friction: 0.9
+   friction: 1
 }
 
 // Create objects
 var shapes = []
-shapes.push(new Block(scene.width/2+50, 100, 50, 50, 15, 0))
-shapes.push(new Block(scene.width/2, 100, 50, 50, 0))
-shapes.push(new Block(scene.width/2+20, 0, 50, 50, 10, 0))
+shapes.push(new Block(0, scene.height-50, scene.width, 40))
+shapes.push(new Block(scene.width/2, 120, 50, 50, 15))
 
 scene.step = function() {
    scene.clear()
    for(var shape1 of shapes) {
       shape1.points.forEach(function(e){ e.move() })
-		for(var i = 0; i < 1; i++){//More passes is stiffer/slower
+		for(var i = 0; i < 2; i++){//More passes is stiffer/slower
 	      shape1.sticks.forEach(function(e){ e.contrain() })
 	      for(var shape2 of shapes){
 	         if(shape1 == shape2) continue
 	         sat(shape1, shape2)
 	      }
 		}
-		shape1.points.forEach(function(e){ e.draw() })
-		shape1.sticks.forEach(function(e){ e.draw() })
+      shape1.points.forEach(function(e){ e.draw() })
+      shape1.sticks.forEach(function(e){ e.draw() })
    }
    if(this.mouse.up){
 		shapes.push(new Block(this.mouse.pos.x, this.mouse.pos.y, 50, 50))
    }
 }
 
-function Block(x, y, width, height, direction, pin) {
+function Block(x, y, width, height, speed, pin) {
    this.id = shapes.length
    this.pin = pin
    // Points
    this.points = [
-      new Point(x, y),
-      new Point(x+width, y),
-      new Point(x+width, y+height),
-      new Point(x, y+height),
+      new Point(x, y, speed, pin),
+      new Point(x+width, y, speed, pin),
+      new Point(x+width, y+height, speed, pin),
+      new Point(x, y+height, speed, pin),
    ]
 
    this.sticks = [
@@ -69,27 +69,12 @@ function Block(x, y, width, height, direction, pin) {
       var size = this.points[2].pos.clone().min(this.points[0].pos.clone()).scale(0.5)
       return this.points[0].pos.clone().add(size)
    }
-
-   this.rotate = function(angle) {
-      var origin = this.center()
-      for(var point of this.points){
-         var radius = point.pos.distance(origin)
-         var newAngle = point.pos.clone().min(origin).direction() + angle
-
-         point.pos.x = Math.cos(newAngle * Math.PI/180) * radius + origin.x
-         point.pos.y = Math.sin(newAngle * Math.PI/180) * radius + origin.y
-         point.old = point.pos.clone()
-      }
-   }
-
    this.move = function(pos){
       var move = this.points[0].pos.clone().min(pos.clone())
       for(var point of this.points){
          point.pos.add(move)
       }
    }
-
-   direction && this.rotate(direction)
 }
 
 function Stick(p1, p2, distance) {
@@ -123,6 +108,8 @@ function Stick(p1, p2, distance) {
 function Point(x, y, vspeed, pin) {
    this.pos = new Vector(x, y)
    this.old = this.pos.clone()
+
+   this.old.x -= vspeed || 0
    this.pin = pin
    this.move = function() {
       if(this.pin) return
@@ -190,22 +177,35 @@ function sat(s1, s2) {
       // If smaller replace
       if(!info.mtv || overlap < info.mtv.length()){
          info.ax = ax
-         info.mtv = info.ax.dir.scale(-overlap)
+         info.mtv = info.ax.dir.clone().scale(-overlap)
       }
    }
    // Smallest point
    var closestDistance = 999999
    var closestPoint = undefined
    for(var point of s1.points){
-      var dist = point.pos.distance(s2.center())
+      //var dist = point.pos.distance(s2.center())
+      var dist = point.pos.distance(s1.center().min(info.mtv))
       if(dist < closestDistance) {
          closestPoint = point
          closestDistance = dist
       }
    }
 
-   closestPoint.pos.add(info.mtv.scale(0.9))
+   closestPoint.pos.add(info.mtv)
 
+   // Dampening
+   // var tightenOn = info.ax.dir.clone().cross()
+   // var currentDir = closestPoint.pos.clone().min(closestPoint.old)
+   // var tightness = tightenOn.dot(currentDir)
+   // var tighten = currentDir.scale(0.95)
+
+   //scene.debug(tightness)
+   //scene.debug('Current: ' + currentDir.toString() + ' Tighten: ' + tighten.toString())
+   // Get amount in that dir
+   //closestPoint.pos.min(tighten.scale(0.5))
+
+   scene.drawCircle(closestPoint.pos, 4, '#FFF')
    scene.drawLine(info.ax.points[0].pos, info.ax.points[1].pos, '#F22')
    return true
 }
