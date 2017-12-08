@@ -57,7 +57,7 @@ function collidePoints(){
 
 function drawPoints(){
    for(var point of points){
-      scene.drawCircle(point.pos, point.radius, point.color)
+      scene.debugCircle(point.pos, point.radius, point.color)
    }
 }
 

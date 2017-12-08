@@ -36,7 +36,7 @@ scene.step = function(){
       }
    }
    for(var intersection of intersections) {
-      scene.drawCircle(intersection, 3, '#465')
+      scene.debugCircle(intersection, 3, '#465')
    }
 
    if(scene.mouse.down) square.setPos(scene.mouse.pos)

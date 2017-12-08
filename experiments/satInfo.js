@@ -64,15 +64,15 @@ function sat(s1, s2) {
          closestDistance = dist
       }
    }
-   scene.drawCircle(s1.center().add(info.mtv), 3, '#F22')
-   scene.drawLine(s1.center().add(info.mtv), s1.center(), '#F22')
-   scene.drawLine(
+   scene.debugCircle(s1.center().add(info.mtv), 3, '#F22')
+   scene.debugLine(s1.center().add(info.mtv), s1.center(), '#F22')
+   scene.debugLine(
       s1.center().clone().add(info.mtv).add(info.ax.dir.clone().cross().scale(1)),
       s1.center().clone().add(info.mtv).add(info.ax.dir.clone().cross().scale(-1)),
       '#F22')
-   scene.drawCircle(closestPoint, 3, '#F22')
-   scene.drawLine(info.ax.points[0], info.ax.points[1], '#FFF')
-   scene.drawText(s1.points[0], info.mtv.toString())
+   scene.debugCircle(closestPoint, 3, '#F22')
+   scene.debugLine(info.ax.points[0], info.ax.points[1], '#FFF')
+   scene.debugText(s1.points[0], info.mtv.toString())
    //s1.move(info.mtv)
    return true
 }

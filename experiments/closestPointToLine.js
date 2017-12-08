@@ -29,7 +29,7 @@ function closestPointToLine(point, linePoints){
    ratioOver = Math.max(ratioOver, 0)
    //return
    var closest = line.scale(ratioOver).add(linePoints[0])
-   scene.drawCircle(closest, 3)
+   scene.debugCircle(closest, 3, '#F22')
    scene.debug('Meet: ' + closest)
    return closest
 }

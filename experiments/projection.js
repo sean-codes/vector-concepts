@@ -8,17 +8,14 @@ scene.step = function(){
    scene.debug('V1: ' + v1)
    scene.debug('V2: ' + v2)
 
-   scene.ctx.strokeStyle = '#000'
-   scene.drawLine(vCenter, vCenter.clone().add(v1))
-   scene.drawLine(vCenter, vCenter.clone().add(v2))
+   scene.debugLine(vCenter, vCenter.clone().add(v1), '#000')
+   scene.debugLine(vCenter, vCenter.clone().add(v2), '#000')
 
-   scene.ctx.strokeStyle = '#F22'
    scene.debug('V2 Projected on V1: ' + v1.clone().project(v2).toString())
-   scene.drawLine(vCenter, v1.clone().project(v2).add(vCenter))
+   scene.debugLine(vCenter, v1.clone().project(v2).add(vCenter), '#F22')
 
-   scene.ctx.strokeStyle = '#465'
    scene.debug('V1 Projected on V2: ' + v2.clone().project(v1).toString())
-   scene.drawLine(vCenter, v2.clone().project(v1).add(vCenter))
+   scene.debugLine(vCenter, v2.clone().project(v1).add(vCenter),'#465')
 
    scene.debug(v1.unit().scale(v1.unit().dot(v2)))
 }

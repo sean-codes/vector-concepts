@@ -53,7 +53,7 @@ function Stick(p1, p2, distance) {
    }
 
    this.draw = function() {
-      scene.drawLine(this.p1.pos, this.p2.pos)
+      scene.debugLine(this.p1.pos, this.p2.pos)
    }
 }
 
@@ -69,7 +69,7 @@ function Point(x, y, vspeed) {
    }
 
    this.draw = function() {
-      scene.drawCircle(this.pos, 3)
+      scene.debugCircle(this.pos, 3)
    }
 
    this.contrain = function() {

@@ -4,10 +4,8 @@ var origin = new Vector(scene.width/2, scene.height*.75)
 var v1 = new Vector(scene.width/2 + 50, scene.height*.75)
 
 scene.step = function() {
-   scene.ctx.strokeStyle = '#222'
-   scene.drawLine(origin, v1)
-   scene.ctx.strokeStyle = '#444'
-   scene.drawLine(origin, scene.mouse.pos)
+   scene.debugLine(origin, v1, '#222')
+   scene.debugLine(origin, scene.mouse.pos, '#444')
 
    var tempV1 = v1.clone().min(origin)
    var tempV2 = scene.mouse.pos.clone().min(origin)

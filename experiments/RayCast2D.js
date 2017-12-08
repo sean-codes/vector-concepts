@@ -50,8 +50,8 @@ scene.step = function(){
          }
       }
       scene.ctx.strokeStyle = '#cdcdcd'
-      scene.drawLine(light.points[0], closestIntersection ? closestIntersection : lightCast)
-      //if(closestIntersection) scene.drawCircle(closestIntersection, 3, '#465')
+      scene.debugLine(light.points[0], closestIntersection ? closestIntersection : lightCast)
+      //if(closestIntersection) scene.debugCircle(closestIntersection, 3, '#465')
    }
    if(scene.mouse.down) light.setPos(scene.mouse.pos)
    scene.drawShapes()

@@ -11,7 +11,7 @@ var set = {
 // Create objects
 var shapes = []
 shapes.push(new Block(0, scene.height-50, scene.width, 40))
-shapes.push(new Block(scene.width/2, 120, 50, 50, 15))
+//shapes.push(new Block(scene.width/2, 120, 50, 50, 15))
 
 scene.step = function() {
    scene.clear()
@@ -101,7 +101,7 @@ function Stick(p1, p2, distance) {
    }
 
    this.draw = function() {
-      scene.drawLine(this.p1.pos, this.p2.pos, '#222')
+      scene.debugLine(this.p1.pos, this.p2.pos, '#222')
    }
 }
 
@@ -120,7 +120,7 @@ function Point(x, y, vspeed, pin) {
    }
 
    this.draw = function() {
-      scene.drawCircle(this.pos, 2, '#FFF')
+      scene.debugCircle(this.pos, 2, '#FFF')
    }
 
    this.contrain = function() {
@@ -205,7 +205,7 @@ function sat(s1, s2) {
    // Get amount in that dir
    closestPoint.pos.min(tighten.scale(0.5))
 
-   scene.drawCircle(closestPoint.pos, 4, '#FFF')
-   scene.drawLine(info.ax.points[0].pos, info.ax.points[1].pos, '#F22')
+   scene.debugCircle(closestPoint.pos, 4, '#FFF')
+   scene.debugLine(info.ax.points[0].pos, info.ax.points[1].pos, '#F22')
    return true
 }

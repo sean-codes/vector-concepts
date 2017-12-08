@@ -13,7 +13,7 @@ scene.step = function() {
          if(line1.unique == line2.unique) continue
          var ipoint = intersect(line1.points[0], line1.points[1], line2.points[0], line2.points[1])
          if(ipoint){
-            scene.drawCircle(ipoint, 4, '#F22')
+            scene.debugCircle(ipoint, 4, '#F22')
          }
       }
    }

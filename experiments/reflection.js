@@ -8,16 +8,16 @@ var laser = new Vector(100, 100)
 scene.step = function() {
    scene.drawShapes()
 
-   scene.drawLine(scene.mouse.pos, scene.mouse.pos.clone().add(laser), '#F22')
+   scene.debugLine(scene.mouse.pos, scene.mouse.pos.clone().add(laser), '#F22')
    var intersection = intersect(line.points[0], line.points[1], scene.mouse.pos, scene.mouse.pos.clone().add(laser))
    if(intersection){
-      scene.drawCircle(intersection, 3, '#f22')
+      scene.debugCircle(intersection, 3, '#f22')
       //reflect the rest
       var over = scene.mouse.pos.clone().add(laser).min(intersection)
-      scene.drawLine(intersection, intersection.clone().add(over), '#465')
+      scene.debugLine(intersection, intersection.clone().add(over), '#465')
       scene.debug(over)
       var reflect = over.reflect(line.points[1].clone().min(line.points[0]))
-      scene.drawLine(intersection, intersection.clone().add(reflect))
+      scene.debugLine(intersection, intersection.clone().add(reflect))
    }
 }
 

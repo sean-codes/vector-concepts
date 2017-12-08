@@ -32,7 +32,7 @@ function Point(x, y, vel) {
    }
 
    this.draw = function() {
-      scene.drawCircle(this.pos, 3, '#2F2')
+      scene.debugCircle(this.pos, 3, '#2F2')
    }
 
    this.constrain = function() {

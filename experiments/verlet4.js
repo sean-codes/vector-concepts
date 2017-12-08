@@ -28,7 +28,7 @@ scene.step = function() {
 		shape1.sticks.forEach(function(e){ e.draw() })
    }
    if(this.mouse.up){
-		shapes.push(new Block(this.mouse.pos.x, this.mouse.pos.y, 50, 50))
+		shapes.push(new Block(this.mouse.pos.x, this.mouse.pos.y, 100, 50))
    }
 }
 
@@ -116,7 +116,7 @@ function Stick(p1, p2, distance) {
    }
 
    this.draw = function() {
-      scene.drawLine(this.p1.pos, this.p2.pos, '#222')
+      scene.debugLine(this.p1.pos, this.p2.pos, '#222')
    }
 }
 
@@ -133,7 +133,7 @@ function Point(x, y, vspeed, pin) {
    }
 
    this.draw = function() {
-      scene.drawCircle(this.pos, 2, '#FFF')
+      scene.debugCircle(this.pos, 2, '#FFF')
    }
 
    this.contrain = function() {
@@ -206,6 +206,6 @@ function sat(s1, s2) {
 
    closestPoint.pos.add(info.mtv.scale(0.9))
 
-   scene.drawLine(info.ax.points[0].pos, info.ax.points[1].pos, '#F22')
+   scene.debugLine(info.ax.points[0].pos, info.ax.points[1].pos, '#F22')
    return true
 }

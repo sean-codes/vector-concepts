@@ -50,7 +50,7 @@ function moveCircle(circle) {
          //scene.debug(sideDir + ' : ' + over)
 
          if(facing > 0 && over > 0 && over < sideDir.length()) {
-            scene.drawCircle(side[0].clone().min(sideDir.unit().scale(over)), 3, circle.colorFill)
+            scene.debugCircle(side[0].clone().min(sideDir.unit().scale(over)), 3, circle.colorFill)
             // Get distance from
             var closest = closestPointToLine(circle.points[0], side)
             var distance = circle.points[0].distance(closest)
