@@ -195,15 +195,15 @@ function sat(s1, s2) {
    closestPoint.pos.add(info.mtv)
 
    // Dampening
-   // var tightenOn = info.ax.dir.clone().cross()
-   // var currentDir = closestPoint.pos.clone().min(closestPoint.old)
-   // var tightness = tightenOn.dot(currentDir)
-   // var tighten = currentDir.scale(0.95)
+   var tightenOn = info.ax.dir.clone().cross()
+   var currentDir = closestPoint.pos.clone().min(closestPoint.old)
+   var tightness = tightenOn.dot(currentDir)
+   var tighten = currentDir.scale(0.4)
 
    //scene.debug(tightness)
    //scene.debug('Current: ' + currentDir.toString() + ' Tighten: ' + tighten.toString())
    // Get amount in that dir
-   //closestPoint.pos.min(tighten.scale(0.5))
+   closestPoint.pos.min(tighten.scale(0.5))
 
    scene.drawCircle(closestPoint.pos, 4, '#FFF')
    scene.drawLine(info.ax.points[0].pos, info.ax.points[1].pos, '#F22')
