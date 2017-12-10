@@ -25,10 +25,8 @@ scene.step = function(){
 		}
 		for(var box1 of world.bodies) {
 			for( var box2 of world.bodies ) {
-				var test = new World.Contact(world.setup)
 				if (box1 != box2) {
-					test.set(box1, box2)
-					test.sat()
+					separatingAxis(box1, box2)
 				}
 			}
 		}
@@ -59,7 +57,7 @@ class World {
 	rectangle(x, y, w, h, m) {
 		w = w * 0.5;
 		h = h * 0.5;
-		const body = new World.Body(
+		const body = new Body(
 			this,
 			[[x - w, y - h], [x + w, y - h], [x + w, y + h], [x - w, y + h]],
 			[
@@ -79,7 +77,6 @@ class World {
 		return body;
 	}
 }
-
 
 //----------------------------------------------------------------------------//
 // Vector Class
@@ -120,143 +117,34 @@ World.Vec = class Vec {
 	}
 };
 
-//----------------------------------------------------------------------------//
-// Contact Pair
-//----------------------------------------------------------------------------//
-World.Contact = class Contact {
-	constructor(setup) {
-		this.b0 = null;
-		this.b1 = null;
-		this.edge = null;
-		this.vertex = null;
-		this.axis = new World.Vec();
-		this.depth = 0.0;
-		this.penetrationTreshold = setup.penetrationTreshold || 0.1;
-		this.friction = setup.friction || 0.0;
-	}
-	set(b0, b1) {
-		this.b0 = b0;
-		this.b1 = b1;
-	}
-	// Separating Axis Theorem collision
-	sat() {
-		let minDistance = 999999;
-		var edges = this.b0.edges.concat(this.b1.edges)
-		for(var edge of edges) {
-			const [min0, max0] = this.b0.projectAxis(edge);
-			const [min1, max1] = this.b1.projectAxis(edge);
-			let dist = min0 < min1 ? min1 - max0 : min0 - max1;
-			if (dist > 0) return false;
-			dist = -dist;
-			if (dist < minDistance) {
-				minDistance = dist;
-				this.edge = edge;
-			}
-		}
-		this.axis.copy(this.edge.axis)
-		scene.debugCircle(this.edge.p0, 3, '#F22')
-	   scene.debugCircle(this.edge.p1, 3, '#F22')
-		this.depth = minDistance;
-		if (this.edge.body !== this.b1) {
-			const tmp = this.b0;
-			this.b0 = this.b1;
-			this.b1 = tmp;
-		}
-		scene.debug(this.axis.x + ', ' + this.axis.y)
-		let smallestDist = 999999;
-		for (let point of this.b0.points) {
-			const dist = this.axis.lineDistance(point, this.b1.center);
-			if (dist < smallestDist) {
-				smallestDist = dist;
-				this.vertex = point;
-
-			}
-		}
-		scene.debugCircle(this.vertex, 3, '#465')
-		//return
-		// Axis Points
-		const p0 = this.edge.p0;
-		const p1 = this.edge.p1;
-		scene.debugLine(p0, p1, '#FFF')
-		// Closest point to s2
-		const v0 = this.vertex;
-		// Scale the axis to the depth(Overlap)
-		const ry = this.axis.y * this.depth;
-		const rx = this.axis.x * this.depth;
-		// this is weird. If the difference between x is greater than y
-		// Turnability
-		var t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
-			? (v0.x - rx - p0.x) / (p1.x - p0.x)
-			: (v0.y - ry - p0.y) / (p1.y - p0.y);
-
-		// Mass coefficients
-		// Using these allows pinning
-		let m0 = this.b0.mass;
-		let m1 = this.b1.mass;
-		// apply collision response
-		p0.x -= rx * (1 - t) * m1;
-		p0.y -= ry * (1 - t) * m1;
-		p1.x -= rx * t * m1;
-		p1.y -= ry * t * m1;
-		v0.x += rx * m0;
-		v0.y += ry * m0;
-		// tangent friction
-		//THIS IS THE FRICTION / DAMPENING
-		// const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
-		// const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
-		// const relTv = -rvx * this.axis.y + rvy * this.axis.x;
-		// const rtx = -this.axis.y * relTv;
-		// const rty = this.axis.x * relTv;
-		// v0.x -= rtx * this.friction * m0;
-		// v0.y -= rty * this.friction * m0;
-		// p0.x += rtx * (1 - t) * this.friction *  m1;
-		// p0.y += rty * (1 - t) * this.friction *  m1;
-		// p1.x += rtx * t * this.friction *  m1;
-		// p1.y += rty * t * this.friction *  m1;
-	}
-}
 
 //----------------------------------------------------------------------------//
 // Body Class
 //----------------------------------------------------------------------------//
-World.Body = class Body {
-	constructor(world, points, links, mass, gravity) {
-		this.points = [];
-		this.edges = [];
-		this.links = [];
-		this.width = Math.abs(points[0][0] - points[1][0])
-		this.height = Math.abs(points[0][1] - points[2][1])
-		this.mass = mass;
-		this.center = new World.Vec();
-		this.half = new World.Vec();
-		this.texture = null;
-		// vertices
-		for (let p of points) {
-			const point = new World.Point(p[0], p[1], gravity);
-			this.points.push(point);
-		}
-		// constraints
-		for (let l of links) {
-			const link = new World.Link(this, this.points[l[0]], this.points[l[1]]);
-			this.links.push(link);
-			if (l[2]) this.edges.push(link);
-		}
+function Body(world, points, links, mass, gravity) {
+	this.points = [];
+	this.edges = [];
+	this.links = [];
+	this.width = Math.abs(points[0][0] - points[1][0])
+	this.height = Math.abs(points[0][1] - points[2][1])
+	this.mass = mass;
+	this.center = new World.Vec();
+	this.half = new World.Vec();
+	this.texture = null;
+	// vertices
+	for (let p of points) {
+		const point = new Point(p[0], p[1], gravity);
+		this.points.push(point);
 	}
-	// rotate static body
-	rotate(a) {
-		for (let p of this.points) {
-			p.px = p.x;
-			p.py = p.y;
-			const dx = p.x - this.center.x;
-			const dy = p.y - this.center.y;
-			const d = Math.sqrt(dx * dx + dy * dy);
-			const ia = Math.atan2(dy, dx);
-			p.x = this.center.x + Math.cos(ia + a) * d;
-			p.y = this.center.y + Math.sin(ia + a) * d;
-		}
+	// constraints
+	for (let l of links) {
+		const link = new Link(this, this.points[l[0]], this.points[l[1]]);
+		this.links.push(link);
+		if (l[2]) this.edges.push(link);
 	}
+
 	// update AABB bounding box
-	boundingBox() {
+	this.boundingBox = function() {
 		let minX = 999999;
 		let minY = 999999;
 		let maxX = -999999;
@@ -270,18 +158,7 @@ World.Body = class Body {
 		this.center.set((minX + maxX) * 0.5, (minY + maxY) * 0.5);
 		this.half.set((maxX - minX) * 0.5, (maxY - minY) * 0.5);
 	}
-	projectAxis(edge) {
-		edge.axis.normal(edge.p0, edge.p1);
-		let max = -99999;
-		let min = 99999;
-		for (let point of this.points) {
-			const d = edge.axis.dot(point);
-			if (d > max) max = d;
-			if (d < min) min = d;
-		}
-		return [min, max];
-	}
-	draw() {
+	this.draw = function() {
 		const p = this.points;
 		const x = p[0].x;
 		const y = p[0].y;
@@ -295,43 +172,17 @@ World.Body = class Body {
 };
 
 //----------------------------------------------------------------------------//
-// Points
-//----------------------------------------------------------------------------//
-World.Point = class Point {
-	constructor(x, y, gravity) {
-		this.x = x;
-		this.y = y;
-		this.px = x;
-		this.py = y;
-		this.gravity = gravity;
-	}
-	squareDist(v) {
-		const dx = this.x - v.x;
-		const dy = this.y - v.y;
-		return dx * dx + dy * dy;
-	}
-	integrate() {
-		const x = this.x;
-		const y = this.y;
-		this.x += this.x - this.px;
-		this.y += this.y - this.py + this.gravity;
-		this.px = x;
-		this.py = y;
-	}
-};
-//----------------------------------------------------------------------------//
 // Link Class (Sticks)
 //----------------------------------------------------------------------------//
-World.Link = class Link {
-	constructor(body, p0, p1) {
-		this.p0 = p0;
-		this.p1 = p1;
-		this.body = body;
-		this.squareRest = p0.squareDist(p1);
-		this.axis = new World.Vec();
-	}
+function Link(body, p0, p1) {
+	this.p0 = p0;
+	this.p1 = p1;
+	this.body = body;
+	this.squareRest = p0.squareDist(p1);
+	this.axis = new World.Vec();
+
 	// solve constraint
-	solve() {
+	this.solve = function() {
 		const dx = this.p1.x - this.p0.x;
 		const dy = this.p1.y - this.p0.y;
 		const delta = this.squareRest / (dx * dx + dy * dy + this.squareRest) - 0.5;
@@ -339,6 +190,31 @@ World.Link = class Link {
 		this.p1.y += dy * delta;
 		this.p0.x -= dx * delta;
 		this.p0.y -= dy * delta;
+	}
+}
+
+//----------------------------------------------------------------------------//
+// Points
+//----------------------------------------------------------------------------//
+function Point(x, y, gravity) {
+	this.x = x;
+	this.y = y;
+	this.px = x;
+	this.py = y;
+	this.gravity = gravity;
+
+	this.squareDist = function(v) {
+		const dx = this.x - v.x;
+		const dy = this.y - v.y;
+		return dx * dx + dy * dy;
+	}
+	this.integrate = function() {
+		const x = this.x;
+		const y = this.y;
+		this.x += this.x - this.px;
+		this.y += this.y - this.py + this.gravity;
+		this.px = x;
+		this.py = y;
 	}
 };
 
@@ -352,9 +228,107 @@ let world = new World({
 	penetrationTreshold: 0.1
 });
 
-// ground
 world.rectangle( scene.width * 0.5, scene.height - 35, Math.max(400, scene.width), 50, 0);
+
+// Utility
 function addCrate(x, y) {
 	const box = world.rectangle(x, y, 70, 50, 1);
 	//box.points[0].py += 10 * (Math.random() - Math.random());
+}
+
+function separatingAxis(box1, box2) {
+	// Collision Information
+	var minEdge, minAxis, minPoint, minOverlap = 999999
+
+	// Loop each Edge
+	var edges = box1.edges.concat(box2.edges)
+	for(var edge of edges) {
+
+		var axis = edgeNormal(edge.p0, edge.p1)
+		//var axis = edge.axis.normal(edge.p0, edge.p1)
+		const [min0, max0] = projectAxis(box1, axis)
+		const [min1, max1] = projectAxis(box2, axis)
+
+		let dist = min0 < min1 ? min1 - max0 : min0 - max1
+		if (dist > 0) return false;
+		dist = -dist
+
+		if (dist < minOverlap) {
+			minOverlap = dist
+			minEdge = edge
+			minAxis = axis
+		}
+	}
+
+	// Swap Box
+	if (minEdge.body !== box2) {
+		box2 = box1
+		box1 = minEdge.body;
+	}
+
+	var smallestDist = 999999;
+	for (var point of box1.points) {
+		var dist = lineDistance(minAxis, point, box2.center)
+		if (dist < smallestDist) {
+			smallestDist = dist;
+			minPoint = point;
+		}
+	}
+
+	// Magic
+	const p0 = minEdge.p0;
+	const p1 = minEdge.p1;
+	const v0 = minPoint;
+	const rx = minAxis.x * minOverlap;
+	const ry = minAxis.y * minOverlap;
+	// Turnability
+	var t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
+		? (v0.x - rx - p0.x) / (p1.x - p0.x)
+		: (v0.y - ry - p0.y) / (p1.y - p0.y);
+
+	// Mass coefficients
+	// Apply Response
+	let m0 = box1.mass;
+	let m1 = box2.mass;
+	// apply collision response
+	p0.x -= rx * (1 - t) * m1;
+	p0.y -= ry * (1 - t) * m1;
+	p1.x -= rx * t * m1;
+	p1.y -= ry * t * m1;
+	v0.x += rx * m0;
+	v0.y += ry * m0;
+	// tangent friction
+	//THIS IS THE FRICTION / DAMPENING
+	// const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
+	// const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
+	// const relTv = -rvx * this.axis.y + rvy * this.axis.x;
+	// const rtx = -this.axis.y * relTv;
+	// const rty = this.axis.x * relTv;
+	// v0.x -= rtx * this.friction * m0;
+	// v0.y -= rty * this.friction * m0;
+	// p0.x += rtx * (1 - t) * this.friction *  m1;
+	// p0.y += rty * (1 - t) * this.friction *  m1;
+	// p1.x += rtx * t * this.friction *  m1;
+	// p1.y += rty * t * this.friction *  m1;
+}
+
+function lineDistance(point, lineP1, lineP2) {
+   return point.x * (lineP1.x - lineP2.x) + point.y * (lineP1.y - lineP2.y);
+}
+function projectAxis(box, axis){
+	let max = -99999
+   let min = 99999
+   for (let point of box.points) {
+      const d = axis.dot(point)
+      if (d > max) max = d
+      if (d < min) min = d
+   }
+   return [min, max]
+}
+
+function edgeNormal(edgeP1, edgeP2){
+	const nx = edgeP2.y - edgeP1.y
+	const ny = edgeP1.x - edgeP2.x
+	const len = 1.0 / Math.sqrt(nx * nx + ny * ny)
+	return new World.Vec(nx*len, ny*len)
 }
