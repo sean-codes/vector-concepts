@@ -1,211 +1,173 @@
 var scene = new Scene()
-scene.setSpeed(30)
-scene.ctx.canvas.style.background = '#111'
-// Settings
-var set = {
-   gravity: new Vector(0, 0.2),
-   bounce: 0.9,
-   friction: 1
-}
 
-// Create objects
-var shapes = []
-shapes.push(new Block(0, scene.height-50, scene.width, 40))
-//shapes.push(new Block(scene.width/2, 120, 50, 50, 15))
+var gravity = new Vector(0, 0.1)
+var bounce = 0.9
+var friction = 0.99
+
+var boxes = [
+   new Box((scene.width-100)*Math.random()+50, (scene.height-100)*Math.random()+50, 50, 50),
+   new Box((scene.width-100)*Math.random()+50, (scene.height-100)*Math.random()+50, 50, 50),
+   new Box((scene.width-100)*Math.random()+50, (scene.height-100)*Math.random()+50, 50, 50)
+]
 
 scene.step = function() {
-   scene.clear()
-   for(var shape1 of shapes) {
-      shape1.points.forEach(function(e){ e.move() })
-		for(var i = 0; i < 2; i++){//More passes is stiffer/slower
-	      shape1.sticks.forEach(function(e){ e.contrain() })
-	      for(var shape2 of shapes){
-	         if(shape1 == shape2) continue
-	         sat(shape1, shape2)
-	      }
-		}
-      shape1.points.forEach(function(e){ e.draw() })
-      shape1.sticks.forEach(function(e){ e.draw() })
+   for(var box1 of boxes) {
+      box1.move()
+      box1.draw()
+      for(var box2 of boxes) {
+         if(box1 != box2) { boxCollisionAndResponse(box1, box2) }
+      }
    }
-   if(this.mouse.up){
-		shapes.push(new Block(this.mouse.pos.x, this.mouse.pos.y, 50, 50))
-   }
+
+   if(scene.mouse.up) { boxes.push(
+      new Box(scene.mouse.pos.x-25, scene.mouse.pos.y-25, 50, 50)
+   )}
 }
 
-function Block(x, y, width, height, speed, pin) {
-   this.id = shapes.length
-   this.pin = pin
-   // Points
+function Box(x, y, width, height) {
+   // Create Points
    this.points = [
-      new Point(x, y, speed, pin),
-      new Point(x+width, y, speed, pin),
-      new Point(x+width, y+height, speed, pin),
-      new Point(x, y+height, speed, pin),
+      new Point(x, y),
+      new Point(x+width, y),
+      new Point(x+width, y+height),
+      new Point(x, y+height)
+   ]
+   // Create Edges
+   this.edges = [
+      new Edge(this.points[0], this.points[1], this),
+      new Edge(this.points[1], this.points[2], this),
+      new Edge(this.points[2], this.points[3], this),
+      new Edge(this.points[3], this.points[0], this)
+   ]
+   // Bar
+   this.bars = [
+      new Edge(this.points[0], this.points[2], this),
+      new Edge(this.points[3], this.points[1], this)
    ]
 
-   this.sticks = [
-      new Stick(this.points[0], this.points[1]),
-      new Stick(this.points[1], this.points[2]),
-      new Stick(this.points[2], this.points[3]),
-      new Stick(this.points[3], this.points[0]),
-      new Stick(this.points[3], this.points[1]),
-      new Stick(this.points[0], this.points[2])
-   ]
-
-   this.axis = function(){
-      var axis = []
-      for(var i = 0; i < this.points.length; i++){
-         var point1 = this.points[i]
-         var point2 = this.points[i-1] || this.points[this.points.length-1]
-         axis.push({
-            dir: point1.pos.clone().min(point2.pos).unit().cross(),
-            points: [point1, point2]
-         })
+   this.draw = function() {
+      for(var edge of this.edges) {
+         edge.draw()
       }
-      return axis
+   }
+
+   this.move = function() {
+      for(var point of this.points) { point.move() }
+      for(var edge of this.edges) { edge.contrain() }
+      this.bars[0].contrain()
+      this.bars[1].contrain()
    }
 
    this.center = function() {
-      var size = this.points[2].pos.clone().min(this.points[0].pos.clone()).scale(0.5)
-      return this.points[0].pos.clone().add(size)
-   }
-   this.move = function(pos){
-      var move = this.points[0].pos.clone().min(pos.clone())
-      for(var point of this.points){
-         point.pos.add(move)
-      }
+      var halfHypnos = this.points[2].pos.clone().min(this.points[0].pos).scale(0.5)
+      return this.points[0].pos.clone().add(halfHypnos)
    }
 }
 
-function Stick(p1, p2, distance) {
-   this.p1 = p1
-   this.p2 = p2
-   this.distance = p1.pos.distance(p2.pos)
-
-   // This is getting dangerous
-   this.contrain = function() {
-      var distance = this.p1.pos.distance(this.p2.pos)
-      var difference = distance - this.distance
-      var percent = difference / this.distance
-      var angle = this.p1.pos.clone().min(this.p2.pos).unit().scale(difference/2)
-
-      // Pull towards
-      if(!this.p1.pin){
-         this.p1.pos.min(angle)
-         this.p1.contrain()
-      }
-      if(!this.p2.pin){
-         this.p2.pos.add(angle)
-         this.p2.contrain()
-      }
-   }
-
+function Edge(p1, p2, box) {
+   this.box = box
+   this.points = [p1, p2]
+   this.length = p1.pos.distance(p2.pos)
    this.draw = function() {
-      scene.debugLine(this.p1.pos, this.p2.pos, '#222')
+      scene.drawLine({v1: p1.pos, v2: p2.pos, color: '#000'})
+      p1.draw()
+      p2.draw()
+   }
+
+   this.contrain = function() {
+      var dir = p2.pos.clone().min(p1.pos)
+      var distance = dir.length()
+      var pull = distance - this.length
+
+      this.points[0].pos.add(dir.unit().scale(pull/2))
+      this.points[1].pos.add(dir.unit().scale(-pull/2))
    }
 }
 
-function Point(x, y, vspeed, pin) {
+function Point(x, y) {
    this.pos = new Vector(x, y)
-   this.old = this.pos.clone()
-
-   this.old.x -= vspeed || 0
-   this.pin = pin
-   this.move = function() {
-      if(this.pin) return
-      var vVel = this.pos.clone().min(this.old).scale(set.friction)
-      this.old = this.pos.clone()
-      this.pos = this.pos.add(vVel).add(set.gravity)
-      this.contrain()
-   }
+   this.old = new Vector(x, y).add(new Vector(10*Math.random()-5, 1))
 
    this.draw = function() {
-      scene.debugCircle(this.pos, 2, '#FFF')
+      scene.drawCircle({ v: this.pos, color: '#000', radius: 3})
    }
 
-   this.contrain = function() {
-      if(this.pin) return
-      var vVel = this.pos.clone().min(this.old).scale(set.friction)
-      if(this.pos.y > scene.height - 10  || this.pos.y < 10 ){
-         this.pos.setY(this.pos.y < 10 ? 10 : scene.height - 10)
-         this.old.setY(this.pos.y + vVel.y * set.bounce)
+   this.move = function() {
+      var vel = this.pos.clone().min(this.old).add(gravity).scale(friction)
+      this.old = this.pos.clone()
+      this.pos.add(vel)
+
+      this.contain()
+   }
+
+   this.contain = function() {
+      var vel = this.pos.clone().min(this.old)
+      if(this.pos.x > scene.width || this.pos.x < 0) {
+         this.pos.x = this.pos.x < 0 ? 0 : scene.width
+         this.old.x = this.pos.x + vel.x*bounce
       }
 
-      if(this.pos.x > scene.width || this.pos.x < 0 ){
-         this.pos.setX(this.pos.x < 0 ? 0 : scene.width)
-         this.old.setX(this.pos.x + vVel.x * set.bounce)
+      if(this.pos.y > scene.height || this.pos.y < 0) {
+         this.pos.y = this.pos.y < 0 ? 0 : scene.height
+         this.old.y = this.pos.y + vel.y*bounce
       }
    }
 }
 
+function boxCollisionAndResponse(box1, box2) {
+   // Separating Axis Theorem
+   var edges = box1.edges.concat(box2.edges)
+   // Save these for response
+   var minOverlap = 99999
+   var minEdge = undefined
+   var minAxis = undefined
+   for(var edge of edges) {
+      // Axis Information
+      var axis = edge.points[1].pos.clone().min(edge.points[0].pos)
+      var axisNorm = axis.normal()
 
-function sat(s1, s2) {
-   // Minimum translation vector
-   var info = {
-      mtv: undefined,
-      ax: undefined
-   }
-
-   // Get the axis
-   var axis = s1.axis().concat(s2.axis())
-
-   // Loop each axis
-   for(var ax of axis) {
-      // Get min and max of projection on each point
-      var s1min = undefined
-      var s1max = undefined
-      var s2min = undefined
-      var s2max = undefined
-      for(var point of s1.points) {
-         var dot = ax.dir.dot(point.pos)
-         s1min = s1min ? Math.min(s1min, dot) : dot
-         s1max = s1max ? Math.max(s1max, dot) : dot
+      // Mins / Maxs
+      var box1min = 9999
+      var box1max = 0
+      var box2min = 9999
+      var box2max = 0
+      for(var point of box1.points) {
+         var dot = axisNorm.dot(point.pos)
+         box1min = Math.min(box1min, dot)
+         box1max = Math.max(box1max, dot)
       }
 
-      for(var point of s2.points) {
-         var dot = ax.dir.dot(point.pos)
-         s2min = s2min ? Math.min(s2min, dot) : dot
-         s2max = s2max ? Math.max(s2max, dot) : dot
+      for(var point of box2.points) {
+         var dot = axisNorm.dot(point.pos)
+         box2min = Math.min(box2min, dot)
+         box2max = Math.max(box2max, dot)
       }
 
-      // Check if there is not a collision return
-      if(s1max <= s2min || s1min >= s2max){  return false; }
+      if(box1min > box2max || box1max < box2min) return
+      var overlap = box1min < box2min ? box2min - box1max : box2max - box1min
 
-      // Find how much overlap
-      var overlap = s1max > s2min ? s1max - s2min : s2max - s1min
 
-      // If smaller replace
-      if(!info.mtv || overlap < info.mtv.length()){
-         info.ax = ax
-         info.mtv = info.ax.dir.clone().scale(-overlap)
+      if(Math.abs(overlap) < Math.abs(minOverlap)){
+         minOverlap = overlap
+         minEdge = edge
+         minAxis = axisNorm
       }
    }
-   // Smallest point
-   var closestDistance = 999999
+   //scene.debug(Math.round(minOverlap) + minAxis.toString())
+
+   // Collision Response
    var closestPoint = undefined
-   for(var point of s1.points){
-      //var dist = point.pos.distance(s2.center())
-      var dist = point.pos.distance(s1.center().min(info.mtv))
-      if(dist < closestDistance) {
+   var closestDistance = 9999
+   for(var point of box1.points) {
+      scene.debugCircle(box1.center(), 3, '#465')
+      var center = box1.center()
+      var distance = box2.center().distance(point.pos)// Will break on odd shapes
+      if(distance < closestDistance){
+         closestDistance = distance
          closestPoint = point
-         closestDistance = dist
       }
    }
 
-   closestPoint.pos.add(info.mtv)
-
-   // Dampening
-   var tightenOn = info.ax.dir.clone().cross()
-   var currentDir = closestPoint.pos.clone().min(closestPoint.old)
-   var tightness = tightenOn.dot(currentDir)
-   var tighten = currentDir.scale(0.4)
-
-   //scene.debug(tightness)
-   //scene.debug('Current: ' + currentDir.toString() + ' Tighten: ' + tighten.toString())
-   // Get amount in that dir
-   closestPoint.pos.min(tighten.scale(0.5))
-
+   closestPoint.pos.add(minAxis.scale(minOverlap))
    scene.debugCircle(closestPoint.pos, 4, '#FFF')
-   scene.debugLine(info.ax.points[0].pos, info.ax.points[1].pos, '#F22')
-   return true
 }

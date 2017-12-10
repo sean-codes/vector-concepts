@@ -9,7 +9,7 @@ class Scene {
       }
       this.canvas.tabIndex = 1
 		this.ctx = this.canvas.getContext('2d')
-
+      this.ctx.lineWidth = 2
 		this.width = this.canvas.width
 		this.height = this.canvas.height
 		this.speed = 1000/60
@@ -60,12 +60,15 @@ class Scene {
    step(){}
    start(){
       this.interval = setInterval(() => {
-         this.debugPos = this.debugPos.set(10, 0)
-         this.clear()
-         this.step()
-			this.drawDebugList()
-			this.mouse.up = false
+         this.loop()
       }, this.speed)
+   }
+   loop() {
+      this.debugPos = this.debugPos.set(10, 0)
+      this.clear()
+      this.step()
+      this.drawDebugList()
+      this.mouse.up = false
    }
 
    stop(){
@@ -93,6 +96,7 @@ class Scene {
 
    addShape(shape) {
       this.shapes.push(shape)
+      this.shapes[this.shapes.length-1].id = this.shapes.length-1
    }
 
 	//---------------------------------------------------------------------------
@@ -139,10 +143,10 @@ class Scene {
 	// Drawing
 	//---------------------------------------------------------------------------
 	drawLine(info) {
+      this.ctx.strokeStyle = info.color || '#000'
       this.ctx.beginPath()
-      this.ctx.moveTo(info.v1.x, info.v1.y)
-      this.ctx.lineTo(info.v2.x, info.v2.y)
-		this.ctx.strokeStyle = info.color || '#000'
+      this.ctx.moveTo(Math.floor(info.v1.x), Math.floor(info.v1.y))
+      this.ctx.lineTo(Math.floor(info.v2.x), Math.floor(info.v2.y))
       this.ctx.stroke()
    }
 

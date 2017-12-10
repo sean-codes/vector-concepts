@@ -61,8 +61,8 @@ class Vector {
 
    cross() {
       var save = this.x
-      this.x = this.y
-      this.y = -save
+      this.x = -this.y
+      this.y = save
       return this
    }
 
@@ -99,8 +99,22 @@ class Vector {
    toString() {
       return '(' + Math.round(this.x*1000)/1000 + ', ' + Math.round(this.y*1000)/1000 + ')'
    }
-   normal() {
 
+   normal() {
+      return this.unit().cross()
    }
 
+   closestOnLine(lineP1, lineP2) {
+      var line = lineP2.clone().min(lineP1)
+      var lineLength = line.length()
+      var directionFromFirstPoint = this.clone().min(lineP1)
+
+      // Project point on line
+      var ratioOver = line.dot(directionFromFirstPoint)/lineLength/lineLength
+      ratioOver = Math.min(ratioOver, 1)
+      ratioOver = Math.max(ratioOver, 0)
+      //return
+      var closest = line.scale(ratioOver).add(lineP1)
+      return closest
+   }
 }

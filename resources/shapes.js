@@ -96,10 +96,13 @@ class Shape {
       // Going top / right / bottom /left
       var sides = []
       for(var i = 0; i < this.points.length; i++){
-         sides.push([
-            this.points[i].clone(),
-            this.points[i+1] ? this.points[i+1].clone() : this.points[0].clone()
-         ])
+         var p1 = this.points[i].clone()
+         var p2 = this.points[i+1] ? this.points[i+1].clone() : this.points[0].clone()
+         sides.push({
+            points: [p1, p2],
+            axis: p2.clone().min(p1).unit(),
+            shape: this
+         })
       }
       return sides
    }

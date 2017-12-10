@@ -17,7 +17,7 @@ scene.step = function() {
    scene.clear()
    for(var shape1 of shapes) {
       shape1.points.forEach(function(e){ e.move() })
-		for(var i = 0; i < 1; i++){//More passes is stiffer/slower
+		for(var i = 0; i < 2; i++){//More passes is stiffer/slower
 	      shape1.sticks.forEach(function(e){ e.contrain() })
 	      for(var shape2 of shapes){
 	         if(shape1 == shape2) continue
@@ -27,8 +27,8 @@ scene.step = function() {
 		shape1.points.forEach(function(e){ e.draw() })
 		shape1.sticks.forEach(function(e){ e.draw() })
    }
-   if(this.mouse.up){
-		shapes.push(new Block(this.mouse.pos.x, this.mouse.pos.y, 100, 50))
+   if(this.mouse.down){
+		shapes.push(new Block(this.mouse.pos.x, this.mouse.pos.y, 50, 50))
    }
 }
 

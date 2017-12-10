@@ -1,3 +1,4 @@
+
 var scene = new Scene()
 scene.setSpeed(30);
 
@@ -107,8 +108,8 @@ World.Vec = class Vec {
 		return this.x * v.x + this.y * v.y;
 	}
 	normal(p0, p1) {
-		const nx = p0.y - p1.y;
-		const ny = p1.x - p0.x;
+		const nx = p1.y - p0.y;// I reveresed this and removed the negative part in the sat
+		const ny = p0.x - p1.x;
 		const len = 1.0 / Math.sqrt(nx * nx + ny * ny);
 		this.x = nx * len;
 		this.y = ny * len;
@@ -152,17 +153,16 @@ World.Contact = class Contact {
 				this.edge = edge;
 			}
 		}
-		this.axis.copy(this.edge.axis);
+		this.axis.copy(this.edge.axis)
+		scene.debugCircle(this.edge.p0, 3, '#F22')
+	   scene.debugCircle(this.edge.p1, 3, '#F22')
 		this.depth = minDistance;
 		if (this.edge.body !== this.b1) {
 			const tmp = this.b0;
 			this.b0 = this.b1;
 			this.b1 = tmp;
 		}
-		const n = this.axis.lineDistance(this.b0.center, this.b1.center);
-		if (n < 0) {
-			this.axis.neg();
-		}
+		scene.debug(this.axis.x + ', ' + this.axis.y)
 		let smallestDist = 999999;
 		for (let point of this.b0.points) {
 			const dist = this.axis.lineDistance(point, this.b1.center);
@@ -172,6 +172,8 @@ World.Contact = class Contact {
 
 			}
 		}
+		scene.debugCircle(this.vertex, 3, '#465')
+		//return
 		// Axis Points
 		const p0 = this.edge.p0;
 		const p1 = this.edge.p1;
@@ -188,6 +190,7 @@ World.Contact = class Contact {
 			: (v0.y - ry - p0.y) / (p1.y - p0.y);
 
 		// Mass coefficients
+		// Using these allows pinning
 		let m0 = this.b0.mass;
 		let m1 = this.b1.mass;
 		// apply collision response
@@ -198,18 +201,18 @@ World.Contact = class Contact {
 		v0.x += rx * m0;
 		v0.y += ry * m0;
 		// tangent friction
-		// THIS IS THE FRICTION / DAMPENING
-		// const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
-		// const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
-		// const relTv = -rvx * this.axis.y + rvy * this.axis.x;
-		// const rtx = -this.axis.y * relTv;
-		// const rty = this.axis.x * relTv;
-		// v0.x -= rtx * this.friction * m0;
-		// v0.y -= rty * this.friction * m0;
-		// p0.x += rtx * (1 - t) * this.friction *  m1;
-		// p0.y += rty * (1 - t) * this.friction *  m1;
-		// p1.x += rtx * t * this.friction *  m1;
-		// p1.y += rty * t * this.friction *  m1;
+		//THIS IS THE FRICTION / DAMPENING
+		const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
+		const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
+		const relTv = -rvx * this.axis.y + rvy * this.axis.x;
+		const rtx = -this.axis.y * relTv;
+		const rty = this.axis.x * relTv;
+		v0.x -= rtx * this.friction * m0;
+		v0.y -= rty * this.friction * m0;
+		p0.x += rtx * (1 - t) * this.friction *  m1;
+		p0.y += rty * (1 - t) * this.friction *  m1;
+		p1.x += rtx * t * this.friction *  m1;
+		p1.y += rty * t * this.friction *  m1;
 	}
 }
 
@@ -343,15 +346,15 @@ World.Link = class Link {
  // Startup
  //----------------------------------------------------------------------------//
 let world = new World({
-	gravity: 0.2,
+	gravity: 0.1,
 	friction: 0.2,
 	numIterations: 1,
 	penetrationTreshold: 0.1
 });
 
 // ground
-world.rectangle( scene.width * 0.5, scene.height + 15, Math.max(400, scene.width), 50, 0);
+world.rectangle( scene.width * 0.5, scene.height - 35, Math.max(400, scene.width), 50, 0);
 function addCrate(x, y) {
 	const box = world.rectangle(x, y, 70, 50, 1);
-	box.points[0].py += 10 * (Math.random() - Math.random());
+	//box.points[0].py += 10 * (Math.random() - Math.random());
 }
