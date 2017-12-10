@@ -202,17 +202,17 @@ World.Contact = class Contact {
 		v0.y += ry * m0;
 		// tangent friction
 		//THIS IS THE FRICTION / DAMPENING
-		const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
-		const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
-		const relTv = -rvx * this.axis.y + rvy * this.axis.x;
-		const rtx = -this.axis.y * relTv;
-		const rty = this.axis.x * relTv;
-		v0.x -= rtx * this.friction * m0;
-		v0.y -= rty * this.friction * m0;
-		p0.x += rtx * (1 - t) * this.friction *  m1;
-		p0.y += rty * (1 - t) * this.friction *  m1;
-		p1.x += rtx * t * this.friction *  m1;
-		p1.y += rty * t * this.friction *  m1;
+		// const rvx = v0.x - v0.px - (p0.x + p1.x - p0.px - p1.px) * 0.5;
+		// const rvy = v0.y - v0.py - (p0.y + p1.y - p0.py - p1.py) * 0.5;
+		// const relTv = -rvx * this.axis.y + rvy * this.axis.x;
+		// const rtx = -this.axis.y * relTv;
+		// const rty = this.axis.x * relTv;
+		// v0.x -= rtx * this.friction * m0;
+		// v0.y -= rty * this.friction * m0;
+		// p0.x += rtx * (1 - t) * this.friction *  m1;
+		// p0.y += rty * (1 - t) * this.friction *  m1;
+		// p1.x += rtx * t * this.friction *  m1;
+		// p1.y += rty * t * this.friction *  m1;
 	}
 }
 

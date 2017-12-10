@@ -173,24 +173,6 @@ function boxCollisionAndResponse(box1, box2) {
       }
    }
 
-   const p0 = minEdge.points[0];
-   const p1 = minEdge.points[1];
-   const v0 = closestPoint.pos;
-   const rx = minAxis.x * minOverlap;
-   const ry = minAxis.y * minOverlap;
-   const t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
-         ? (v0.x - rx - p0.x) / (p1.x - p0.x)
-         : (v0.y - ry - p0.y) / (p1.y - p0.y);
-   const lambda = 1 / (t * t + (1 - t) * (1 - t));
-   // mass coefficients
-   // apply collision response
-   p0.x -= rx * (1 - t) * lambda;
-   p0.y -= ry * (1 - t) * lambda;
-   p1.x -= rx * t * lambda;
-   p1.y -= ry * t * lambda;
-   v0.x += rx;
-   v0.y += ry;
-
-   //closestPoint.pos.add(minAxis.scale(minOverlap))
+   closestPoint.pos.add(minAxis.scale(minOverlap))
    scene.debugCircle(closestPoint.pos, 4, '#FFF')
 }
