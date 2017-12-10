@@ -121,17 +121,16 @@ function Point(x, y, stable) {
 }
 
 function boxCollisionAndResponse(box1, box2) {
-   // Separating Axis Theorem
-   var edges = box1.edges.concat(box2.edges)
    // Save these for response
    var minOverlap = 99999
    var minEdge = undefined
    var minAxis = undefined
+   // Separating Axis Theorem
+   var edges = box1.edges.concat(box2.edges)
    for(var edge of edges) {
       // Axis Information
       var axis = edge.points[1].pos.clone().min(edge.points[0].pos)
       var axisNorm = axis.normal()
-
       // Mins / Maxs
       var box1min = 9999
       var box1max = 0
@@ -159,12 +158,11 @@ function boxCollisionAndResponse(box1, box2) {
          minAxis = axisNorm
       }
    }
-   //scene.debug(Math.round(minOverlap) + minAxis.toString())
+
    // Collision Response
    var closestPoint = undefined
    var closestDistance = 9999
    for(var point of box1.points) {
-      scene.debugCircle(box1.center(), 3, '#465')
       var center = box1.center()
       var distance = box2.center().distance(point.pos)// Will break on odd shapes
       if(distance < closestDistance){
