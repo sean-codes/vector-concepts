@@ -21,7 +21,7 @@ scene.step = function() {
    }
 
    if(scene.mouse.up) { boxes.push(
-      new Box(scene.mouse.pos.x-25, scene.mouse.pos.y-25, 50, 50, true)
+      new Box(scene.mouse.pos.x-25, scene.mouse.pos.y-25, Math.random()*50, 50, true)
    )}
 }
 
@@ -121,76 +121,83 @@ function Point(x, y, stable) {
 }
 
 function boxCollisionAndResponse(box1, box2) {
-   // Separating Axis Theorem
+   // Collision Information
+   var minEdge, minAxis, minPoint, minOverlap = 999999
+
+   // Loop each Edge
    var edges = box1.edges.concat(box2.edges)
-   // Save these for response
-   var minOverlap = 99999
-   var minEdge = undefined
-   var minAxis = undefined
    for(var edge of edges) {
-      // Axis Information
-      var axis = edge.points[1].pos.clone().min(edge.points[0].pos)
-      var axisNorm = axis.normal()
+      var axis = edgeNormal(edge.points[0].pos, edge.points[1].pos)
+      var [min0, max0] = projectAxis(box1, axis)
+      var [min1, max1] = projectAxis(box2, axis)
 
-      // Mins / Maxs
-      var box1min = 9999
-      var box1max = 0
-      var box2min = 9999
-      var box2max = 0
-      for(var point of box1.points) {
-         var dot = axisNorm.dot(point.pos)
-         box1min = Math.min(box1min, dot)
-         box1max = Math.max(box1max, dot)
-      }
+      var dist = min0 < min1 ? min1 - max0 : min0 - max1
+      if (dist > 0) return false
+      dist = -dist
 
-      for(var point of box2.points) {
-         var dot = axisNorm.dot(point.pos)
-         box2min = Math.min(box2min, dot)
-         box2max = Math.max(box2max, dot)
-      }
-
-      if(box1min > box2max || box1max < box2min) return
-      var overlap = box1min < box2min ? box2min - box1max : box2max - box1min
-
-
-      if(Math.abs(overlap) < Math.abs(minOverlap)){
-         minOverlap = overlap
+      if (dist < minOverlap) {
+         minOverlap = dist
          minEdge = edge
-         minAxis = axisNorm
-      }
-   }
-   //scene.debug(Math.round(minOverlap) + minAxis.toString())
-   // Collision Response
-   var closestPoint = undefined
-   var closestDistance = 9999
-   for(var point of box1.points) {
-      scene.debugCircle(box1.center(), 3, '#465')
-      var center = box1.center()
-      var distance = box2.center().distance(point.pos)// Will break on odd shapes
-      if(distance < closestDistance){
-         closestDistance = distance
-         closestPoint = point
+         minAxis = axis
       }
    }
 
+   // Swap Box
+   if (minEdge.box !== box2) {
+      box2 = box1;
+      box1 = minEdge.box;
+   }
+
+   minDistance = 999999;
+   for (var point of box1.points) {
+      var dist = lineDistance(minAxis, point.pos, box2.center())
+      if (dist < minDistance) {
+         minDistance = dist;
+         minPoint = point;
+      }
+   }
+
+   // Magic
    const p0 = minEdge.points[0];
    const p1 = minEdge.points[1];
-   const v0 = closestPoint.pos;
+   const v0 = minPoint.pos;
    const rx = minAxis.x * minOverlap;
    const ry = minAxis.y * minOverlap;
+   // Turnability
    const t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
          ? (v0.x - rx - p0.x) / (p1.x - p0.x)
          : (v0.y - ry - p0.y) / (p1.y - p0.y);
-   const lambda = 1 / (t * t + (1 - t) * (1 - t));
-   // mass coefficients
-   // apply collision response
-   p0.x -= rx * (1 - t) * lambda;
-   p0.y -= ry * (1 - t) * lambda;
-   p1.x -= rx * t * lambda;
-   p1.y -= ry * t * lambda;
+
+   // Mass coefficients
+   // Apply Response
+   p0.x -= rx * (1 - t)
+   p0.y -= ry * (1 - t)
+   p1.x -= rx * t
+   p1.y -= ry * t
    v0.x += rx;
    v0.y += ry;
 
-   //closestPoint.pos.add(minAxis.scale(minOverlap))
-   scene.debugCircle(closestPoint.pos, 4, '#FFF')
+   //scene.stop()
+}
+
+function lineDistance(point, lineP1, lineP2) {
+   return point.x * (lineP1.x - lineP2.x) + point.y * (lineP1.y - lineP2.y);
+}
+
+function projectAxis(box, axis) {
+   let max = -99999
+   let min = 99999
+   for (let point of box.points) {
+      const d = axis.dot(point.pos)
+      if (d > max) max = d
+      if (d < min) min = d
+   }
+   return [min, max]
+}
+
+function edgeNormal(edgeP1, edgeP2) {
+	const nx = edgeP2.y - edgeP1.y
+	const ny = edgeP1.x - edgeP2.x
+	const len = 1.0 / Math.sqrt(nx * nx + ny * ny)
+   return new Vector(nx * len, ny * len)
 }

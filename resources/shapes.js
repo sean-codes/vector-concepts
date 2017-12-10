@@ -83,7 +83,9 @@ class Shape {
          var point2 = this.points[i-1] || this.points[this.points.length-1]
          axis.push({
             dir: point2.clone().min(point1).unit().cross(),
-            points: [point1, point2]
+            points: [point1, point2],
+            id: i,
+            shape: this
          })
       }
 
