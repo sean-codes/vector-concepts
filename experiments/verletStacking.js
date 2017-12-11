@@ -1,5 +1,5 @@
 var scene = new Scene()
-
+scene.setSpeed(100)
 var gravity = new Vector(0, 0.1)
 var bounce = 0.9
 var friction = 0.99
@@ -172,9 +172,10 @@ function boxCollisionAndResponse(box1, box2) {
       ? (vertex.x - minAxis.x - minP1.x) / (minP2.x - minP1.x)
       : (vertex.y - minAxis.y - minP1.y) / (minP2.y - minP1.y)
 
-   minP1.min(minAxis.clone().scale(1-tilt))
-   minP2.min(minAxis.clone().scale(tilt))
-   vertex.add(minAxis)
+   // minP1.min(minAxis.clone().scale(1-tilt))
+   // minP2.min(minAxis.clone().scale(tilt))
+   // vertex.add(minAxis)
+   //scene.stop()
 }
 
 function lineDistance(point, lineP1, lineP2) {

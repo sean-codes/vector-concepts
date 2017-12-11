@@ -93,21 +93,21 @@ class Shape {
       return axis
    }
 
-   sides(){
-      // A side is a set of points
-      // Going top / right / bottom /left
-      var sides = []
-      for(var i = 0; i < this.points.length; i++){
-         var p1 = this.points[i].clone()
-         var p2 = this.points[i+1] ? this.points[i+1].clone() : this.points[0].clone()
-         sides.push({
-            points: [p1, p2],
-            axis: p2.clone().min(p1).unit(),
-            shape: this
-         })
-      }
-      return sides
-   }
+   // sides(){
+   //    // A side is a set of points
+   //    // Going top / right / bottom /left
+   //    var sides = []
+   //    for(var i = 0; i < this.points.length; i++){
+   //       var p1 = this.points[i].clone()
+   //       var p2 = this.points[i+1] ? this.points[i+1].clone() : this.points[0].clone()
+   //       sides.push({
+   //          points: [p1, p2],
+   //          axis: p2.clone().min(p1).unit(),
+   //          shape: this
+   //       })
+   //    }
+   //    return sides
+   // }
 }
 
 class Line extends Shape {
@@ -133,10 +133,18 @@ class Square extends Shape {
       this.height = height || width
 
       this.points = [
-         new Vector(x, y),
-         new Vector(x+this.width, y),
-         new Vector(x+this.width, y+this.height),
-         new Vector(x, y+this.height)
+         new Vector(x+Math.random(), y+Math.random() ),
+         new Vector(x+Math.random()+this.width, y+Math.random()),
+         new Vector(x+Math.random()+this.width, y+this.height+Math.random()),
+         new Vector(x+Math.random(), y+this.height+Math.random())
+      ]
+   }
+   sides(){
+      return [
+         { points: [this.points[0], this.points[1]]},
+         { points: [this.points[1], this.points[2]]},
+         { points: [this.points[2], this.points[3]]},
+         { points: [this.points[3], this.points[0]]}
       ]
    }
 }
