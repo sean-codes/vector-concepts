@@ -13,7 +13,12 @@ scene.step = function() {
    //sat(scene.shapes[0], scene.shapes[1])
    for(var s1 of scene.shapes) {
       for(var s2 of scene.shapes) {
-         if(s1.unique != s2.unique) sidesFacing(s1, s2)
+         if(s1.unique != s2.unique){
+            var sides = sidesFacing(s1, s2)
+            for(var side of sides) {
+               scene.debugLine(side.points[0], side.points[1], '#FFF')
+            }
+         }
       }
    }
 
@@ -32,14 +37,12 @@ function sidesFacing(s1, s2) {
    var dir1to2 = s1.center().min(s2.center())
    var dir2to1 = s2.center().min(s1.center())
 
-   var sides = s1.sides().concat(s2.sides())
-
-   for(var side of sides) {
+   return s1.sides().concat(s2.sides()).filter(function(side) {
       var ax = side.points[0].clone().min(side.points[1]).unit().cross()
 
-      if(side.shape == s1 && ax.dot(dir2to1) < 0) continue
-      if(side.shape == s2 && ax.dot(dir1to2) < 0) continue
+      if(side.shape == s1 && ax.dot(dir2to1) < 0) return false
+      if(side.shape == s2 && ax.dot(dir1to2) < 0) return false
 
-      scene.debugLine(side.points[0], side.points[1], '#FFF')
-   }
+      return true
+   })
 }
