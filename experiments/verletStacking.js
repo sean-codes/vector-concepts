@@ -21,7 +21,7 @@ scene.step = function() {
    }
 
    if(scene.mouse.up) { boxes.push(
-      new Box(scene.mouse.pos.x-25, scene.mouse.pos.y-25, Math.random()*50, 50, true)
+      new Box(scene.mouse.pos.x-25, scene.mouse.pos.y-25, 50, 50, true)
    )}
 }
 
@@ -131,53 +131,49 @@ function boxCollisionAndResponse(box1, box2) {
       var [min0, max0] = projectAxis(box1, axis)
       var [min1, max1] = projectAxis(box2, axis)
 
-      var dist = min0 < min1 ? min1 - max0 : min0 - max1
-      if (dist > 0) return false
-      dist = -dist
+      var distance = intervalDistance(min0, max0, min1, max1)
+      //scene.debug(distance)
+      if(distance > 0) return
 
-      if (dist < minOverlap) {
-         minOverlap = dist
+      if (Math.abs(distance) < Math.abs(minOverlap)) {
+         minOverlap = distance
          minEdge = edge
          minAxis = axis
       }
    }
 
-   // Swap Box
-   if (minEdge.box !== box2) {
-      box2 = box1;
-      box1 = minEdge.box;
+   // Make sure collision edge = box 2
+   if(minEdge.box == box1){//If edge is box1
+      box1 = box2//Box 1 needs the vertex
+      box2 = minEdge.box//box needs the edge
    }
 
-   minDistance = 999999;
-   for (var point of box1.points) {
-      var dist = lineDistance(minAxis, point.pos, box2.center())
-      if (dist < minDistance) {
-         minDistance = dist;
-         minPoint = point;
+   var n = box1.center().min(box2.center()).dot(minAxis)
+   if(n < 0) minAxis.scale(-1)
+   //scene.stop()
+   // Find the closest point
+   var minDistance, vertex
+   for(var point of box1.points){
+      var distance = point.pos.distance(box2.center())
+      if(!minDistance || distance < minDistance) {
+         minDistance = distance
+         vertex = point.pos
       }
    }
 
-   // Magic
-   const p0 = minEdge.points[0];
-   const p1 = minEdge.points[1];
-   const v0 = minPoint.pos;
-   const rx = minAxis.x * minOverlap;
-   const ry = minAxis.y * minOverlap;
-   // Turnability
-   const t = Math.abs(p0.x - p1.x) > Math.abs(p0.y - p1.y)
-         ? (v0.x - rx - p0.x) / (p1.x - p0.x)
-         : (v0.y - ry - p0.y) / (p1.y - p0.y);
 
-   // Mass coefficients
-   // Apply Response
-   p0.x -= rx * (1 - t)
-   p0.y -= ry * (1 - t)
-   p1.x -= rx * t
-   p1.y -= ry * t
-   v0.x += rx;
-   v0.y += ry;
+   // Attept to use vector magic
+   var minP1 = minEdge.points[0].pos
+   var minP2 = minEdge.points[1].pos
+   minAxis.scale(-minOverlap)
 
-   //scene.stop()
+   var tilt = Math.abs(minP1.x - minP2.x) > Math.abs(minP1.y - minP2.y)
+      ? (vertex.x - minAxis.x - minP1.x) / (minP2.x - minP1.x)
+      : (vertex.y - minAxis.y - minP1.y) / (minP2.y - minP1.y)
+
+   minP1.min(minAxis.clone().scale(1-tilt))
+   minP2.min(minAxis.clone().scale(tilt))
+   vertex.add(minAxis)
 }
 
 function lineDistance(point, lineP1, lineP2) {
@@ -200,4 +196,8 @@ function edgeNormal(edgeP1, edgeP2) {
 	const ny = edgeP1.x - edgeP2.x
 	const len = 1.0 / Math.sqrt(nx * nx + ny * ny)
    return new Vector(nx * len, ny * len)
+}
+
+function intervalDistance(minA, maxA, minB, maxB) {
+   return minA < minB ? minB - maxA : minA - maxB
 }
