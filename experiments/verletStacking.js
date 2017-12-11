@@ -122,20 +122,19 @@ function Point(x, y, stable) {
 
 function boxCollisionAndResponse(box1, box2) {
    // Collision Information
-   var minEdge, minAxis, minPoint, minOverlap = 999999
+   var minEdge, minAxis, minPoint, minOverlap = 9999
 
    // Loop each Edge
    var edges = box1.edges.concat(box2.edges)
    for(var edge of edges) {
-      var axis = edgeNormal(edge.points[0].pos, edge.points[1].pos)
+      var axis = edge.points[0].pos.clone().min(edge.points[1].pos).unit().cross()
       var [min0, max0] = projectAxis(box1, axis)
       var [min1, max1] = projectAxis(box2, axis)
 
-      var distance = intervalDistance(min0, max0, min1, max1)
-      //scene.debug(distance)
-      if(distance > 0) return
+      var distance = min0 < min1 ? max0 - min1 : max1 - min0
+      if(distance < 0) return
 
-      if (Math.abs(distance) < Math.abs(minOverlap)) {
+      if (distance < minOverlap){
          minOverlap = distance
          minEdge = edge
          minAxis = axis
@@ -148,9 +147,9 @@ function boxCollisionAndResponse(box1, box2) {
       box2 = minEdge.box//box needs the edge
    }
 
-   var n = box1.center().min(box2.center()).dot(minAxis)
-   if(n < 0) minAxis.scale(-1)
-   //scene.stop()
+   // Make sure the axis is point towards box1
+   if(box1.center().min(box2.center()).dot(minAxis) < 0) minAxis.scale(-1)
+
    // Find the closest point
    var minDistance, vertex
    for(var point of box1.points){
@@ -161,11 +160,13 @@ function boxCollisionAndResponse(box1, box2) {
       }
    }
 
-
    // Attept to use vector magic
    var minP1 = minEdge.points[0].pos
    var minP2 = minEdge.points[1].pos
-   minAxis.scale(-minOverlap)
+   scene.debugCircle(minP1, 3, '#F22')
+   scene.debugCircle(minP2, 3, '#F22')
+   scene.debugCircle(vertex, 3, '#FFF')
+   minAxis.scale(minOverlap)
 
    var tilt = Math.abs(minP1.x - minP2.x) > Math.abs(minP1.y - minP2.y)
       ? (vertex.x - minAxis.x - minP1.x) / (minP2.x - minP1.x)
@@ -189,15 +190,4 @@ function projectAxis(box, axis) {
       if (d < min) min = d
    }
    return [min, max]
-}
-
-function edgeNormal(edgeP1, edgeP2) {
-	const nx = edgeP2.y - edgeP1.y
-	const ny = edgeP1.x - edgeP2.x
-	const len = 1.0 / Math.sqrt(nx * nx + ny * ny)
-   return new Vector(nx * len, ny * len)
-}
-
-function intervalDistance(minA, maxA, minB, maxB) {
-   return minA < minB ? minB - maxA : minA - maxB
 }

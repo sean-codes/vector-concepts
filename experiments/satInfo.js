@@ -11,11 +11,12 @@ scene.step = function() {
 
    // Check for collision
    //sat(scene.shapes[0], scene.shapes[1])
-   for(var s1 of scene.shapes) {
-      for(var s2 of scene.shapes) {
-         if(s1.unique != s2.unique) sat(s1, s2)
-      }
-   }
+   sat(scene.shapes[0], scene.shapes[1])
+   // for(var s1 of scene.shapes) {
+   //    for(var s2 of scene.shapes) {
+   //       if(s1.unique != s2.unique) sat(s1, s2)
+   //    }
+   // }
 
    // Move Shape
    if(scene.mouse.down) {
@@ -28,9 +29,6 @@ scene.step = function() {
 }
 
 function sat(s1, s2) {
-   // Directions
-   var dir1to2 = s1.center().min(s2.center())
-   var dir2to1 = s2.center().min(s1.center())
    // Minimum translation vector
    var info = {
       mtv: undefined,
@@ -42,27 +40,19 @@ function sat(s1, s2) {
    // Loop each axis
    for(var side of sides) {
       var ax = side.points[0].clone().min(side.points[1]).unit().cross()
-
-      // Get min and max of projection on each point
-      if(side.shape == s1 && ax.dot(dir2to1) < 0) continue
-      if(side.shape == s2 && ax.dot(dir1to2) < 0) continue
-      scene.debugLine(side.points[0], side.points[1], '#FFF')
-
-      var s1proj = project(s1, ax)
-      var s2proj = project(s2, ax)
+      var [min0, max0] = project(s1, ax)
+      var [min1, max1] = project(s2, ax)
 
       // Check if there is not a collision return
-      if(s1proj.max <= s2proj.min || s1proj.min >= s2proj.max){  return false; }
 
-      // Find how much overlap
-      var overlap = s1proj.max >= s2proj.min ? s2proj.min - s1proj.max : s2proj.max - s1proj.min
+      var distance = min0 < min1 ? max0 - min1 : max1 - min0
+      if(distance < 0) return
 
-      // If smaller replace
-      if(!info.mtv || Math.abs(overlap) <= info.mtv.length()){
+      if (!info.mtv || distance < info.overlap){
+         info.overlap = distance
          info.side = side
          info.ax = ax
-         info.overlap = overlap
-         info.mtv = info.ax.clone().scale(overlap)
+         info.mtv = info.ax.clone().scale(info.overlap)
       }
    }
    //return
@@ -98,5 +88,5 @@ function project(shape, ax){
       max = max ? Math.max(max, dot) : dot
    }
 
-   return { min: min, max: max }
+   return [min, max]
 }
