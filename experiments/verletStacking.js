@@ -1,5 +1,5 @@
 var scene = new Scene()
-scene.setSpeed(100)
+//scene.setSpeed(100)
 var gravity = new Vector(0, 0.1)
 var bounce = 0.9
 var friction = 0.99
@@ -125,7 +125,8 @@ function boxCollisionAndResponse(box1, box2) {
    var minEdge, minAxis, minPoint, minOverlap = 9999
 
    // Loop each Edge
-   var edges = box1.edges.concat(box2.edges)
+   //var edges = box1.edges.concat(box2.edges)
+   var edges = edgesFacing(box1, box2)
    for(var edge of edges) {
       var axis = edge.points[0].pos.clone().min(edge.points[1].pos).unit().cross()
       var [min0, max0] = projectAxis(box1, axis)
@@ -147,8 +148,8 @@ function boxCollisionAndResponse(box1, box2) {
       box2 = minEdge.box//box needs the edge
    }
 
-   // Make sure the axis is point towards box1
-   if(box1.center().min(box2.center()).dot(minAxis) < 0) minAxis.scale(-1)
+   // Make sure the axis is point towards box1 (POSSIBLY ONLY USE FACING?)
+   //if(box1.center().min(box2.center()).dot(minAxis) < 0) minAxis.scale(-1)
 
    // Find the closest point
    var minDistance, vertex
@@ -172,9 +173,9 @@ function boxCollisionAndResponse(box1, box2) {
       ? (vertex.x - minAxis.x - minP1.x) / (minP2.x - minP1.x)
       : (vertex.y - minAxis.y - minP1.y) / (minP2.y - minP1.y)
 
-   // minP1.min(minAxis.clone().scale(1-tilt))
-   // minP2.min(minAxis.clone().scale(tilt))
-   // vertex.add(minAxis)
+   minP1.min(minAxis.clone().scale(1-tilt))
+   minP2.min(minAxis.clone().scale(tilt))
+   vertex.add(minAxis)
    //scene.stop()
 }
 
@@ -191,4 +192,20 @@ function projectAxis(box, axis) {
       if (d < min) min = d
    }
    return [min, max]
+}
+
+
+function edgesFacing(s1, s2) {
+   // How to know if sides are facing each other?
+   var dir1to2 = s1.center().min(s2.center())
+   var dir2to1 = s2.center().min(s1.center())
+
+   return s1.edges.concat(s2.edges).filter(function(edge) {
+      var ax = edge.points[0].pos.clone().min(edge.points[1].pos).unit().cross()
+
+      if(edge.box == s1 && ax.dot(dir2to1) < 0) return false
+      if(edge.box == s2 && ax.dot(dir1to2) < 0) return false
+
+      return true
+   })
 }
