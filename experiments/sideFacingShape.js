@@ -1,6 +1,7 @@
 var scene = new Scene()
 var heldShape = 0
 scene.addShape(new Square(scene.width/2, scene.height/2, 50))
+scene.addShape(new Square(scene.width/2+100, scene.height/2, 50))
 //scene.addShape(new Square(scene.width/2 +100, scene.height/2, 50))
 scene.addShape(new Square(scene.width/2 - 100, scene.height/2, 50))
 scene.shapes[1].rotate(15);
