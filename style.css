@@ -10,7 +10,6 @@ body{
 }
 h2{
    text-transform:uppercase;
-   text-align:center;
 }
 canvas{
    display: block;
@@ -53,4 +52,22 @@ button.active:after{
    background:rgba(0, 0, 0, 0.1);
    top:0px;
    left:0px;
+}
+a{
+   display:block;
+   text-decoration:none;
+   color:#FFF;
+   letter-spacing:4px;
+   font-size:10px;
+   margin-bottom:0px;
+   text-align:right;
+   margin-bottom:-10px;
+}
+a:hover{
+   text-decoration:underline;
+}
+a img{
+   height:14px;
+   top:4px;
+   position:relative;
 }
