@@ -127,6 +127,7 @@ function boxCollisionAndResponse(box1, box2) {
    // Loop each Edge
    //var edges = box1.edges.concat(box2.edges)
    var edges = edgesFacing(box1, box2)
+   //var edges = box1.edges.concat(box2.edges)
    for(var edge of edges) {
       var axis = edge.points[0].pos.clone().min(edge.points[1].pos).unit().cross()
       var [min0, max0] = projectAxis(box1, axis)
@@ -164,19 +165,15 @@ function boxCollisionAndResponse(box1, box2) {
    // Attept to use vector magic
    var minP1 = minEdge.points[0].pos
    var minP2 = minEdge.points[1].pos
-   scene.debugCircle(minP1, 3, '#F22')
-   scene.debugCircle(minP2, 3, '#F22')
-   scene.debugCircle(vertex, 3, '#FFF')
+
+   // Scaled to the response
    minAxis.scale(minOverlap)
+   vertex.add(minAxis.scale(1))
 
-   var tilt = Math.abs(minP1.x - minP2.x) > Math.abs(minP1.y - minP2.y)
-      ? (vertex.x - minAxis.x - minP1.x) / (minP2.x - minP1.x)
-      : (vertex.y - minAxis.y - minP1.y) / (minP2.y - minP1.y)
-
-   minP1.min(minAxis.clone().scale(1-tilt))
-   minP2.min(minAxis.clone().scale(tilt))
-   vertex.add(minAxis)
-   //scene.stop()
+   // Vertex minus how much colliding
+   var tilt = vertex.distance(minP1) / minEdge.length
+   minP1.min(minAxis.clone().scale(1-tilt).scale(1))
+   minP2.min(minAxis.clone().scale(tilt).scale(1))
 }
 
 function lineDistance(point, lineP1, lineP2) {
