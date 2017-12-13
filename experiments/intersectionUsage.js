@@ -26,7 +26,7 @@ scene.step = function(){
             if(shape1.unique == shape2.unique) continue
 
             for(var line2 of shape2.sides()) {
-               var intersection = lineIntersection(line1[0], line1[1], line2[0], line2[1] )
+               var intersection = lineIntersection(line1.points[0], line1.points[1], line2.points[0], line2.points[1] )
 
                if(intersection){
                   intersections.push(intersection)

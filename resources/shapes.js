@@ -121,7 +121,9 @@ class Line extends Shape {
    }
 
    sides() {
-      return [ [this.points[0].clone(), this.points[1].clone()] ]
+      return [{
+         points: [this.points[0].clone(), this.points[1].clone()]
+      }]
    }
 }
 

@@ -154,7 +154,7 @@ class Scene {
       this.ctx.beginPath()
       this.ctx.arc(info.v.x, info.v.y, info.radius, 0, Math.PI*2)
       this.ctx.fillStyle = info.color || 'transparent'
-      this.ctx.strokeStyle = info.color || 'transparent'
+      this.ctx.strokeStyle = '#000'
       this.ctx.fill()
       this.ctx.stroke()
    }
