@@ -1,7 +1,9 @@
 var scene = new Scene()
 
 // Settings
-var gravity = new Vector(0, 0.1)
+var settings = new Settings()
+settings.addSetting({ name: 'Gravity', min: -1, max: 1, value:0.1 })
+
 var bounce = 0.9
 var friction = 0.99
 var maxSpeed = 40
@@ -12,6 +14,8 @@ var boxes = [
 ]
 
 scene.step = function() {
+   gravity = new Vector(0, settings.read('gravity'))
+
    for(var box1 of boxes) {
       box1.draw()
       box1.move()
@@ -20,7 +24,6 @@ scene.step = function() {
          if(box1 != box2) { boxCollisionAndResponse(box1, box2) }
       }
    }
-
    if(scene.mouse.up) {
       if(boxes.length > 30){ boxes.shift() }
       boxes.push( new Box(scene.mouse.pos.x-25, scene.mouse.pos.y-25, 50, 50, true) )
