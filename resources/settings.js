@@ -10,11 +10,11 @@ class Settings {
       return Number(this.settings[setting.toLowerCase()].value)
    }
 
-   addSetting(options) {
+   add(options) {
 
       var setting = {
          html: this.createSettingHTML(options),
-         value: options.value || 50
+         value: options.value
       }
       document.querySelector('settings').appendChild(setting.html.container)
 
@@ -50,11 +50,11 @@ class Settings {
       html.input.step = (setting.max - setting.min)/100
       html.input.min = setting.min || 0
       html.input.max = setting.max || 100
-      html.input.value = setting.value || 50
-      html.input.defaultValue = setting.value || 50
+      html.input.value = setting.value
+      html.input.defaultValue = setting.value
 
       // Value Setup
-      html.value.innerHTML = setting.value || 50
+      html.value.innerHTML = setting.value
 
       return html
    }
