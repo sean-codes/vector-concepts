@@ -35,6 +35,10 @@ class Vector {
       return this
    }
 
+   difference(vect) {
+      return new Vector(this.x - vect.x, this.y - vect.y)
+   }
+
    scale(amount) {
       this.x *= amount
       this.y *= amount
