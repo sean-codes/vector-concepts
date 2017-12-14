@@ -40,24 +40,24 @@ function moveCircle(circle) {
       for(var side of shape.sides()) {
 
          // Find out if the circle is facing the right side
-         var sideDir = side[0].clone().min(side[1])
+         var sideDir = side.points[0].clone().min(side.points[1])
          var sideCross = sideDir.clone().cross()
          var facing = sideCross.dot(circle.dir)
 
          // How much over?
-         var circleRelation = side[0].clone().min(circle.points[0])
+         var circleRelation = side.points[0].clone().min(circle.points[0])
          var over = circleRelation.dot(sideDir.unit())
          //scene.debug(sideDir + ' : ' + over)
 
-         if(facing > 0 && over > 0 && over < sideDir.length()) {
-            scene.debugCircle(side[0].clone().min(sideDir.unit().scale(over)), 3, circle.colorFill)
+         if(facing < 0 && over > 0 && over < sideDir.length()) {
+            scene.debugCircle(side.points[0].clone().min(sideDir.unit().scale(over)), 3, circle.colorFill)
             // Get distance from
             var closest = closestPointToLine(circle.points[0], side)
             var distance = circle.points[0].distance(closest)
 
             if(distance < circle.radius + circle.dir.length()) {
                circle.back(circle.dir)
-               circle.dir = circle.dir.reflect(side[1].clone().min(side[0]))
+               circle.dir = circle.dir.reflect(side.points[1].clone().min(side.points[0]))
                circle.move(circle.dir)
                //return
             }
@@ -70,16 +70,16 @@ function moveCircle(circle) {
 function closestPointToLine(point, linePoints){
    // A circle collides with a rectangle if
    // Get line direction
-   var line = linePoints[1].clone().min(linePoints[0])
+   var line = linePoints.points[1].clone().min(linePoints.points[0])
    var lineLength = line.length()
-   var directionFromFirstPoint = point.clone().min(linePoints[0])
+   var directionFromFirstPoint = point.clone().min(linePoints.points[0])
 
    // Project point on line
    var ratioOver = line.dot(directionFromFirstPoint)/lineLength/lineLength
    ratioOver = Math.min(ratioOver, 1)
    ratioOver = Math.max(ratioOver, 0)
    //return
-   return line.scale(ratioOver).add(linePoints[0])
+   return line.scale(ratioOver).add(linePoints.points[0])
 }
 
 function randomColor() {

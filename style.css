@@ -65,7 +65,8 @@ a{
    margin-bottom:-10px;
    margin-top:2px;
    user-select:none;
-   -webkit-user-select:none
+   -webkit-user-select:none;
+   margin-right:2px;
 }
 a:hover{
    text-decoration:underline;
@@ -88,9 +89,9 @@ settings {
    color:#dcd;
    letter-spacing:1px;
    background:rgba(0, 0, 0, 0.75);
-   padding:4px 6px 8px 8px;
+   padding:2px 0px 6px 10px;
    border-radius:3px 0px 3px 0px;
-   font-size:10px;
+   font-size:8px;
    ccbox-shadow:-1px -1px 2px rgba(0, 0, 0, 0.25);
    -webkit-user-select:none;
    user-select:none;
@@ -111,5 +112,5 @@ settings label {
 }
 settings input{
    top:5px;
-   max-width:75px;
+   max-width:60px;
 }
