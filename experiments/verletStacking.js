@@ -2,7 +2,7 @@ var scene = new Scene()
 
 // Settings
 var settings = new Settings()
-settings.addSetting({ name: 'Gravity', min: -1, max: 1, value:0.1 })
+settings.add({ name: 'Gravity', min: -1, max: 1, value:0.1 })
 
 var bounce = 0.9
 var friction = 0.99

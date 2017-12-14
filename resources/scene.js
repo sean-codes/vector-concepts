@@ -17,7 +17,6 @@ class Scene {
 
       this.shapes = []
       this.debugPos = new Vector(20, 0)
-      this.center = new Vector(this.width/2, this.height/2)
       this.mouse = {
          pos: new Vector(0, 0),
          down: false,
@@ -217,5 +216,9 @@ class Scene {
          [ new Vector(scene.width, scene.height), new Vector(scene.width, 0) ],
          [ new Vector(scene.width, 0), new Vector(0, 0) ],
       ]
+   }
+
+   center() {
+      return new Vector(this.width/2, this.height/2)
    }
 }
