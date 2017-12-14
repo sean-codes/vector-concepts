@@ -37,7 +37,7 @@ scene.step = function(){
       for(var shape of scene.shapes) {
          if(shape.type != 'Square') continue
          for(var side of shape.sides()){
-            var hit = lineIntersection(side[0], side[1], light.points[0], lightCast)
+            var hit = lineIntersection(side.points[0], side.points[1], light.points[0], lightCast)
 
             if(hit) {
                var distance = light.points[0].distance(new Vector(hit.x, hit.y))

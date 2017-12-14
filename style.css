@@ -21,6 +21,8 @@ canvas{
    margin:auto;
    letter-spacing:2px;
    font-size:16px;
+   user-select:none;
+   -webkit-user-select:none;
 }
 
 button{
