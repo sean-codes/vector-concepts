@@ -6,8 +6,18 @@ class Settings {
       }
    }
 
-   read(setting) {
-      return Number(this.settings[setting.toLowerCase()].value)
+   read(settingName) {
+      var setting = this.getSetting(settingName)
+      setting.read = true
+      return Number(setting.value)
+   }
+
+   changed(settingName) {
+      return !this.getSetting(settingName).read
+   }
+
+   getSetting(settingName) {
+      return this.settings[settingName.toLowerCase()]
    }
 
    add(options) {
@@ -29,6 +39,7 @@ class Settings {
    onChange(setting) {
       setting.html.value.innerHTML = setting.html.input.value
       setting.value = setting.html.input.value
+      setting.read = false
    }
 
    createSettingHTML(setting) {
@@ -47,7 +58,7 @@ class Settings {
 
       // Range Slider Setup
       html.input.type = 'range'
-      html.input.step = (setting.max - setting.min)/100
+      html.input.step = setting.step || (setting.max - setting.min)/100
       html.input.min = setting.min || 0
       html.input.max = setting.max || 100
       html.input.value = setting.value
