@@ -30,25 +30,27 @@ function Box(center, size) {
       new Point(center.min(new Vector(size, 0)))
    ]
 
-   this.links = [
+
+   this.sides = [
       new Link(this, this.points[0], this.points[1]),
       new Link(this, this.points[1], this.points[2]),
       new Link(this, this.points[2], this.points[3]),
       new Link(this, this.points[3], this.points[0]),
-      new Link(this, this.points[3], this.points[1]),
-      new Link(this, this.points[2], this.points[0])
    ]
 
-   // Use for AXIS
-   this.sides = this.links.slice(0, 3)
+   this.braces = [
+      new Link(this, this.points[3], this.points[1]),
+      new Link(this, this.points[2], this.points[0]),
+   ]
 
    this.move = function() {
       for(var point of this.points) point.move()
-      for(var link of this.links) link.tighten()
+      for(var side of this.sides) side.tighten()
+      for(var brace of this.braces) brace.tighten()
    }
 
    this.draw = function() {
-      for(var link of this.links) link.draw()
+      for(var side of this.sides) side.draw()
    }
 
    this.center = function() {
@@ -173,16 +175,12 @@ function SAT(box0, box1) {
    }
 
    // We've collected all the mysteries now we combine
-   //scene.debugCircle(data.point.pos, 4, '#F22')
-   //scene.debugLine(data.side.points[0].pos, data.side.points[1].pos, '#F22')
-   data.point.pos.add(data.axis.clone().scale(data.depth))
+   // scene.debugCircle(data.point.pos, 4, '#F22')
+   // scene.debugLine(data.side.points[0].pos, data.side.points[1].pos, '#F22')
+   data.point.pos.add(data.axis.scale(data.depth))
 
    // How much tilt
-   var side = data.side.points[0].pos.clone().min(data.side.points[1].pos)
-   var test = data.side.points[0].pos.clone().min(data.point.pos)
-   var tilt = (side.dot(test) / data.side.length) / data.side.length
-
-   data.side.points[0].pos.min(data.axis.clone().scale(data.depth * (1-tilt)))
-   data.side.points[1].pos.min(data.axis.clone().scale(data.depth * (tilt)))
-   //scene.stop()
+   var tilt = data.side.points[0].pos.distance(data.point.pos) / data.side.length
+   data.side.points[0].pos.min(data.axis.clone().scale(1-tilt))
+   data.side.points[1].pos.min(data.axis.clone().scale(tilt))
 }
