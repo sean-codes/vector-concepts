@@ -1,7 +1,7 @@
 var scene = new Scene()
 var settings = new Settings()
-settings.add({ name: 'gravity', min: -1, max: 1, value: 0 })
-settings.add({ name: 'friction', min: 0.9, max: 1, value: 0.98 })
+settings.add({ name: 'gravity', min: -1, max: 1, value: 0.05 })
+settings.add({ name: 'friction', min: 0.9, max: 1, value: 0.99 })
 var boxes = [
    new Box(scene.center(), 50),
    new Box(scene.center().add(new Vector(75, 0)), 50)
@@ -17,7 +17,7 @@ scene.step = function() {
    }
 
    if(scene.mouse.up){
-      boxes.push(new Box(scene.mouse.pos, 50))
+      boxes.push(new Box(scene.mouse.pos, 25))
    }
 }
 
@@ -45,11 +45,18 @@ function Box(center, size) {
 
    this.move = function() {
       for(var point of this.points) point.move()
-      for(var side of this.sides) side.tighten()
       for(var brace of this.braces) brace.tighten()
+      for(var side of this.sides) side.tighten()
    }
 
    this.draw = function() {
+      scene.ctx.beginPath()
+      scene.ctx.moveTo(this.points[0].pos.x, this.points[0].pos.y)
+      for(var point of this.points) {
+         scene.ctx.lineTo(point.pos.x, point.pos.y)
+      }
+      scene.ctx.fillStyle = '#A8B'
+      scene.ctx.fill()
       for(var side of this.sides) side.draw()
    }
 
@@ -87,7 +94,7 @@ function Link(box, point0, point1) {
 
 function Point(pos) {
    this.pos = pos.clone()
-   this.old = pos.clone().add(new Vector(Math.random()*10-5, Math.random()*5-2.587654321))
+   this.old = pos.clone()//.add(new Vector(Math.random()*10-5, Math.random()*5-2.587654321))
 
    this.draw = function() {
       scene.debugCircle(this.pos, 3, '#FFF')
@@ -154,7 +161,6 @@ function SAT(box0, box1) {
          data.axis = axis
       }
    }
-
    // This is where the monster lives
    // Not turning back now
 
@@ -167,20 +173,30 @@ function SAT(box0, box1) {
    // Find closest point!
    var minDistance = 99999
    for(var point of box0.points) {
-      var distance = point.pos.distance(box1.center())
+      var distance = distanceSideFromPoint(data.side, point)
+
       if(distance < minDistance) {
          minDistance = distance
          data.point = point
       }
    }
 
+
    // We've collected all the mysteries now we combine
-   // scene.debugCircle(data.point.pos, 4, '#F22')
-   // scene.debugLine(data.side.points[0].pos, data.side.points[1].pos, '#F22')
+   scene.debugCircle(data.point.pos, 4, '#F22')
+   scene.debugLine(data.side.points[0].pos, data.side.points[1].pos, '#F22')
    data.point.pos.add(data.axis.scale(data.depth))
 
    // How much tilt
    var tilt = data.side.points[0].pos.distance(data.point.pos) / data.side.length
    data.side.points[0].pos.min(data.axis.clone().scale(1-tilt))
    data.side.points[1].pos.min(data.axis.clone().scale(tilt))
+}
+
+function distanceSideFromPoint(side, point) {
+   var dir = side.points[1].pos.clone().min(side.points[0].pos).unit()
+   var dirFromPoint = point.pos.clone().min(side.points[0].pos)
+   var ratio = dir.dot(dirFromPoint)
+   var pos = side.points[0].pos.clone().add(dir.scale(ratio))
+   return point.pos.distance(pos)
 }
