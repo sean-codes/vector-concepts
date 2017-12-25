@@ -95,6 +95,13 @@ settings {
    font-size:8px;
    -webkit-user-select:none;
    user-select:none;
+   opacity:0.25;
+   transition:all 0.25s;
+   transition-delay:0.5s;
+   user-select:none;
+}
+settings:hover{
+   opacity:1;
 }
 settings setting{
    text-align:right;
