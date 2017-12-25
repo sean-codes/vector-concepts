@@ -8,10 +8,24 @@ scene.addShape(line)
 scene.step = function(){
    scene.drawShapes()
 
-   closestPointToLine(circle.points[0], line.sides()[0])
+   closestPointToLine(circle.points[0], line.sides()[0].points)
+   //distanceSideFromPoint(circle.points[0], line.sides()[0])
 
    circle.setPos(scene.mouse.pos)
 }
+// function distanceSideFromPoint(point, side) {
+//    var length = side.points[0].distance(side.points[1])
+//    var dir = side.points[1].clone().min(side.points[0])
+//    var dirFromPoint = point.clone().min(side.points[0])
+//    var ratio = dir.dot(dirFromPoint) / length / length
+//    scene.debug(ratio)
+//    ratio = Math.max(0, ratio)
+//    ratio = Math.min(1, ratio)
+//    var pos = side.points[0].clone().add(dir.scale(ratio))
+//    scene.debugCircle(pos, 3, '#FFF')
+//    scene.debug(point.distance(pos))
+//    return point.distance(pos)
+// }
 
 function closestPointToLine(point, linePoints){
    // A circle collides with a rectangle if
