@@ -1,18 +1,21 @@
 var scene = new Scene()
 var settings = new Settings()
-settings.add({ name: 'gravity', min: -1, max: 1, value: 0.05 })
-settings.add({ name: 'friction', min: 0.9, max: 1, value: 0.99 })
+settings.add({ name: 'grav', min: -1, max: 1, value: 0.05 })
+settings.add({ name: 'f', min: 0.9, max: 1, value: 0.999 })
 var boxes = [
    new Box(scene.center(), 50),
-   new Box(scene.center().add(new Vector(75, 0)), 50)
+   new Box(scene.center().add(new Vector(51, 0)), 50)
 ]
 scene.step = function() {
+
    for(var box0 in boxes) {
       boxes[box0].draw()
       boxes[box0].move()
+      var i = 5; while(i--) {
 
-      for(var box1 in boxes) {
-         if(box0 != box1) SAT(boxes[box0], boxes[box1])
+         for(var box1 in boxes) {
+            if(box0 != box1) SAT(boxes[box0], boxes[box1])
+         }
       }
    }
 
@@ -101,7 +104,7 @@ function Point(pos) {
    }
 
    this.move = function() {
-      var velocity = this.velocity().add(new Vector(0, settings.read('gravity'))).scale(settings.read('friction'))
+      var velocity = this.velocity().add(new Vector(0, settings.read('grav'))).scale(settings.read('f'))
       this.old = this.pos.clone()
       this.pos.add(velocity)
 
@@ -113,11 +116,14 @@ function Point(pos) {
       if(this.pos.x < 0 || this.pos.x > scene.width) {
          this.pos.x = this.pos.x < 0 ? 0 : scene.width
          this.old.x = this.pos.x + velocity.x
+
       }
 
       if(this.pos.y < 0 || this.pos.y > scene.height) {
          this.pos.y = this.pos.y < 0 ? 0 : scene.height
          this.old.y = this.pos.y + velocity.y
+         var totalX = this.pos.x - this.old.x
+         this.old.add(new Vector(totalX * 0.1, 0))
       }
    }
 
@@ -161,14 +167,12 @@ function SAT(box0, box1) {
          data.axis = axis
       }
    }
-   // This is where the monster lives
-   // Not turning back now
 
    // Make sure the axis is on the right box
    if(data.side.box == box0) { box0 = box1; box1 = data.side.box }
 
    // First off make sure we are pointing correctly
-   if(data.axis.dot(box0.center().min(box1.center())) < 0) data.axis.scale(-1)
+   if(box0.center().min(box1.center()).dot(data.axis) < 0) data.axis.scale(-1)
 
    // Find closest point!
    var minDistance = 99999
@@ -187,16 +191,22 @@ function SAT(box0, box1) {
    scene.debugLine(data.side.points[0].pos, data.side.points[1].pos, '#F22')
    data.point.pos.add(data.axis.scale(data.depth))
 
+   var direction = data.point.pos.clone().min(data.point.old)
+   data.point.old = data.point.pos.clone().min(direction.scale(0.1))
    // How much tilt
    var tilt = data.side.points[0].pos.distance(data.point.pos) / data.side.length
+
    data.side.points[0].pos.min(data.axis.clone().scale(1-tilt))
    data.side.points[1].pos.min(data.axis.clone().scale(tilt))
 }
 
 function distanceSideFromPoint(side, point) {
-   var dir = side.points[1].pos.clone().min(side.points[0].pos).unit()
+   var dir = side.points[1].pos.clone().min(side.points[0].pos)
    var dirFromPoint = point.pos.clone().min(side.points[0].pos)
-   var ratio = dir.dot(dirFromPoint)
+   var ratio = dir.dot(dirFromPoint) / side.length / side.length
+   ratio = Math.max(ratio, 0)
+   ratio = Math.min(ratio, 1)
    var pos = side.points[0].pos.clone().add(dir.scale(ratio))
+   scene.debug(point.pos.distance(pos))
    return point.pos.distance(pos)
 }
