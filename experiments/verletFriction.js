@@ -189,15 +189,29 @@ function SAT(box0, box1) {
    // We've collected all the mysteries now we combine
    scene.debugCircle(data.point.pos, 4, '#F22')
    scene.debugLine(data.side.points[0].pos, data.side.points[1].pos, '#F22')
-   data.point.pos.add(data.axis.scale(data.depth))
+
+   var velocity = data.axis.clone().scale(data.depth)
+   data.point.pos.add(velocity)
 
    var direction = data.point.pos.clone().min(data.point.old)
-   data.point.old = data.point.pos.clone().min(direction.scale(0.1))
+   //data.point.old = data.point.pos.clone().min(direction.scale(0.1))
    // How much tilt
    var tilt = data.side.points[0].pos.distance(data.point.pos) / data.side.length
+   data.side.points[0].pos.min(velocity.clone().scale(1-tilt))
+   data.side.points[1].pos.min(velocity.clone().scale(tilt))
 
-   data.side.points[0].pos.min(data.axis.clone().scale(1-tilt))
-   data.side.points[1].pos.min(data.axis.clone().scale(tilt))
+   // Friction
+   //This is going to be a monster
+   var lineVel = data.side.points[0].pos.clone().add(data.side.points[1].pos).min(data.side.points[0].old).min(data.side.points[1].old).scale(0.5)
+   var relativeVelocity = data.point.pos.clone().min(data.point.old).min(lineVel)
+   // Math :(
+   var tangent = data.axis.cross()
+   var relativeTangentVelocity = relativeVelocity.dot(tangent)
+   var relativeTangent = tangent.scale(relativeTangentVelocity)
+
+   data.point.old.add(relativeTangent.clone().scale(0.2))
+   data.side.points[0].old.min(relativeTangent.clone().scale(1-tilt).scale(0.2))
+   data.side.points[1].old.min(relativeTangent.clone().scale(tilt).scale(0.2))
 }
 
 function distanceSideFromPoint(side, point) {
@@ -207,6 +221,5 @@ function distanceSideFromPoint(side, point) {
    ratio = Math.max(ratio, 0)
    ratio = Math.min(ratio, 1)
    var pos = side.points[0].pos.clone().add(dir.scale(ratio))
-   scene.debug(point.pos.distance(pos))
    return point.pos.distance(pos)
 }
