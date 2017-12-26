@@ -11,7 +11,7 @@ scene.step = function() {
    for(var box0 in boxes) {
       boxes[box0].draw()
       boxes[box0].move()
-      var i = 5; while(i--) {
+      var i = 1; while(i--) {
 
          for(var box1 in boxes) {
             if(box0 != box1) SAT(boxes[box0], boxes[box1])
@@ -202,16 +202,18 @@ function SAT(box0, box1) {
 
    // Friction
    //This is going to be a monster
-   var lineVel = data.side.points[0].pos.clone().add(data.side.points[1].pos).min(data.side.points[0].old).min(data.side.points[1].old).scale(0.5)
-   var relativeVelocity = data.point.pos.clone().min(data.point.old).min(lineVel)
-   // Math :(
-   var tangent = data.axis.cross()
-   var relativeTangentVelocity = relativeVelocity.dot(tangent)
-   var relativeTangent = tangent.scale(relativeTangentVelocity)
+   // Line Velocity is both point veloocities added together and halved
+   var lineVel = data.side.points[0].velocity().add(data.side.points[1].velocity()).scale(0.5)
+   // Relative is the points velocity min the line velocity
+   var relativeVelocity = data.point.velocity().min(lineVel)
 
-   data.point.old.add(relativeTangent.clone().scale(0.2))
-   data.side.points[0].old.min(relativeTangent.clone().scale(1-tilt).scale(0.2))
-   data.side.points[1].old.min(relativeTangent.clone().scale(tilt).scale(0.2))
+   var collisionDirection = data.axis.cross()
+   var relativeCollision = relativeVelocity.dot(collisionDirection)
+   var frictionForce = collisionDirection.scale(relativeCollision)
+
+   data.point.old.add(frictionForce.clone().scale(0.9))
+   data.side.points[0].old.min(frictionForce.clone().scale(1-tilt).scale(0.9))
+   data.side.points[1].old.min(frictionForce.clone().scale(tilt).scale(0.9))
 }
 
 function distanceSideFromPoint(side, point) {
