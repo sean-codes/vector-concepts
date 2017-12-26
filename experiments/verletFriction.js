@@ -201,19 +201,19 @@ function SAT(box0, box1) {
    data.side.points[1].pos.min(velocity.clone().scale(tilt))
 
    // Friction
-   //This is going to be a monster
-   // Line Velocity is both point veloocities added together and halved
-   var lineVel = data.side.points[0].velocity().add(data.side.points[1].velocity()).scale(0.5)
-   // Relative is the points velocity min the line velocity
-   var relativeVelocity = data.point.velocity().min(lineVel)
+   // Collect some info
+   var sideVel = data.side.points[0].velocity().add(data.side.points[1].velocity()).scale(0.5)
+   var relativeVel = sideVel.min(data.point.velocity())
 
-   var collisionDirection = data.axis.cross()
-   var relativeCollision = relativeVelocity.dot(collisionDirection)
-   var frictionForce = collisionDirection.scale(relativeCollision)
+   // Find Friction
+   var frictionDirection = data.axis.cross()
+   var frictionAmount = frictionDirection.dot(relativeVel)
+   var friction = frictionDirection.scale(frictionAmount).scale(0.25)
 
-   data.point.old.add(frictionForce.clone().scale(0.9))
-   data.side.points[0].old.min(frictionForce.clone().scale(1-tilt).scale(0.9))
-   data.side.points[1].old.min(frictionForce.clone().scale(tilt).scale(0.9))
+   // Apply the friction
+   data.point.old.min(friction)
+   data.side.points[0].old.add(friction.scale(1-tilt))
+   data.side.points[1].old.add(friction.scale(tilt))
 }
 
 function distanceSideFromPoint(side, point) {
