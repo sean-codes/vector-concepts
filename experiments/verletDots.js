@@ -17,8 +17,8 @@ scene.step = function(){
    collidePoints()
    drawPoints()
 
-   var mouseDir = scene.mouse.pos.clone().min(scene.center)
-   var distance = mouseDir.distance(scene.center.clone().min(scene.mouse.pos))
+   var mouseDir = scene.mouse.pos.clone().min(scene.center())
+   var distance = mouseDir.distance(scene.center().clone().min(scene.mouse.pos))
    set.gravity = mouseDir.unit().scale(0.2*(Math.min(1, distance/300)))
 }
 
