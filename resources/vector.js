@@ -104,8 +104,8 @@ class Vector {
       return '(' + Math.round(this.x*1000)/1000 + ', ' + Math.round(this.y*1000)/1000 + ')'
    }
 
-   normal() {
-      return this.unit().cross()
+   normal(vect) {
+      return this.clone().min(vect).unit().cross()
    }
 
    closestOnLine(lineP1, lineP2) {
