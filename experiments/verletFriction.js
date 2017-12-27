@@ -3,8 +3,8 @@ var settings = new Settings()
 settings.add({ name: 'grav', min: -1, max: 1, value: 0.05 })
 settings.add({ name: 'f', min: 0.9, max: 1, value: 0.999 })
 var boxes = [
-   new Box(scene.center(), 50),
-   new Box(scene.center().add(new Vector(51, 0)), 50)
+   //new Box(scene.center(), 50),
+   //new Box(scene.center().add(new Vector(50, 0)), 50)
 ]
 scene.step = function() {
 
@@ -134,86 +134,72 @@ function Point(pos) {
 
 
 function SAT(box0, box1) {
-   // Gather this Data
-   var data = { point: undefined, side: undefined, depth: 99999 }
+   var data = { vertex: undefined, axis: undefined, side: undefined, depth: 9999, push: undefined }
 
-   // Loop each side
    var sides = box0.sides.concat(box1.sides)
    for(var side of sides) {
-      var axis = side.points[0].pos.clone().min(side.points[1].pos).normal()
+      var axis = side.points[0].pos.normal(side.points[1].pos)
 
-      var box0min =  99999, box0max = -99999
+      var box0min =  9999
+      var box0max = -9999
       for(var point of box0.points) {
-         var dot = axis.dot(point.pos)
-         box0min = Math.min(dot, box0min)
-         box0max = Math.max(dot, box0max)
+         var depth = axis.dot(point.pos)
+         if(depth < box0min) box0min = depth
+         if(depth > box0max) box0max = depth
       }
 
-      var box1min =  99999, box1max = -99999
+      var box1min =  9999
+      var box1max = -9999
       for(var point of box1.points) {
-         var dot = axis.dot(point.pos)
-         box1min = Math.min(dot, box1min)
-         box1max = Math.max(dot, box1max)
+         var depth = axis.dot(point.pos)
+         if(depth < box1min) box1min = depth
+         if(depth > box1max) box1max = depth
       }
 
-      // How do I know what side they are on?
       var depth = box0min < box1min ? box0max - box1min : box1max - box0min
-      if(depth < 0) return // Lets get out of here!
+      if(depth < 0) return
 
-      // I'm taking you with me
       if(depth < data.depth) {
-         data.depth = depth
          data.side = side
          data.axis = axis
+         data.depth = depth
       }
    }
 
-   // Make sure the axis is on the right box
-   if(data.side.box == box0) { box0 = box1; box1 = data.side.box }
+   // Flip and ship
+   if(data.side.box == box0){ box0 = box1; box1 = data.side.box }
+   if(data.axis.dot(box0.center().min(box1.center())) < 0) { data.axis.scale(-1) }
 
-   // First off make sure we are pointing correctly
-   if(box0.center().min(box1.center()).dot(data.axis) < 0) data.axis.scale(-1)
-
-   // Find closest point!
-   var minDistance = 99999
+   var minDistance = 9999
    for(var point of box0.points) {
       var distance = distanceSideFromPoint(data.side, point)
-
       if(distance < minDistance) {
          minDistance = distance
-         data.point = point
+         data.vertex = point
       }
    }
 
+   // Collision - Info
+   data.push = data.axis.clone().scale(data.depth)
+   data.tilt = data.side.points[0].pos.distance(data.vertex.pos) / data.side.length
 
-   // We've collected all the mysteries now we combine
-   scene.debugCircle(data.point.pos, 4, '#F22')
-   scene.debugLine(data.side.points[0].pos, data.side.points[1].pos, '#F22')
+   // Collision - Apply
+   data.vertex.pos.add(data.push)
+   data.side.points[0].pos.min(data.push.clone().scale(1-data.tilt))
+   data.side.points[1].pos.min(data.push.clone().scale(data.tilt))
 
-   var velocity = data.axis.clone().scale(data.depth)
-   data.point.pos.add(velocity)
+   // Friction - Info
+   var lineVel = data.side.points[0].velocity().add(data.side.points[1].velocity()).scale(0.5)
+   data.relativeVel = lineVel.min(data.vertex.velocity())
 
-   var direction = data.point.pos.clone().min(data.point.old)
-   //data.point.old = data.point.pos.clone().min(direction.scale(0.1))
-   // How much tilt
-   var tilt = data.side.points[0].pos.distance(data.point.pos) / data.side.length
-   data.side.points[0].pos.min(velocity.clone().scale(1-tilt))
-   data.side.points[1].pos.min(velocity.clone().scale(tilt))
-
-   // Friction
-   // Collect some info
-   var sideVel = data.side.points[0].velocity().add(data.side.points[1].velocity()).scale(0.5)
-   var relativeVel = sideVel.min(data.point.velocity())
-
-   // Find Friction
    var frictionDirection = data.axis.cross()
-   var frictionAmount = frictionDirection.dot(relativeVel)
-   var friction = frictionDirection.scale(frictionAmount).scale(0.25)
+   var frictionAmount = frictionDirection.dot(data.relativeVel)
+   data.friction = frictionDirection.scale(frictionAmount).scale(0.5)
 
-   // Apply the friction
-   data.point.old.min(friction)
-   data.side.points[0].old.add(friction.scale(1-tilt))
-   data.side.points[1].old.add(friction.scale(tilt))
+   // Friction - Apply
+   data.vertex.old.min(data.friction)
+   data.side.points[0].old.add(data.friction.clone().scale(data.tilt-1))
+   data.side.points[1].old.add(data.friction.clone().scale(data.tilt))
 }
 
 function distanceSideFromPoint(side, point) {
