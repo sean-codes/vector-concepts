@@ -6,21 +6,40 @@ var boxes = [
    //new Box(scene.center(), 50),
    //new Box(scene.center().add(new Vector(50, 0)), 50)
 ]
-scene.step = function() {
 
+var drag = { point: undefined, distance: 40 }
+scene.step = function() {
    for(var box0 in boxes) {
       boxes[box0].draw()
       boxes[box0].move()
       var i = 1; while(i--) {
-
          for(var box1 in boxes) {
             if(box0 != box1) SAT(boxes[box0], boxes[box1])
          }
       }
+
+      // Find if mouse near point
+      if(scene.mouse.down && !drag.point) {
+         for(var point of boxes[box0].points) {
+            var distance = point.pos.distance(scene.mouse.pos)
+            if(distance < drag.distance) {
+               drag.distance = distance
+               drag.point = point.pos
+            }
+         }
+      }
    }
 
-   if(scene.mouse.up){
-      boxes.push(new Box(scene.mouse.pos, 25))
+   if(drag.point){
+      if(!scene.mouse.down) {
+         drag = { point: undefined, distance: 40 }
+      }
+      if(scene.mouse.down) {
+         drag.point.add(scene.mouse.pos.clone().min(drag.point).scale(0.5))
+      }
+      scene.debugCircle(drag.point, 5, '#F22')
+   } else if(!drag.point && scene.mouse.up){
+      boxes.push(new Box(scene.mouse.pos, 40))
    }
 }
 
