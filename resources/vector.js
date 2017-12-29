@@ -1,5 +1,5 @@
 class Vector {
-   constructor(x, y) {
+   constructor(x=0, y=0) {
       this.set(x, y)
    }
    copy(vect) {
@@ -108,17 +108,9 @@ class Vector {
       return this.clone().min(vect).unit().cross()
    }
 
-   closestOnLine(lineP1, lineP2) {
-      var line = lineP2.clone().min(lineP1)
-      var lineLength = line.length()
-      var directionFromFirstPoint = this.clone().min(lineP1)
-
-      // Project point on line
-      var ratioOver = line.dot(directionFromFirstPoint)/lineLength/lineLength
-      ratioOver = Math.min(ratioOver, 1)
-      ratioOver = Math.max(ratioOver, 0)
-      //return
-      var closest = line.scale(ratioOver).add(lineP1)
-      return closest
+   addCartesian(dir, radius) {
+      this.x += Math.cos(dir * Math.PI/180) * radius
+      this.y += Math.sin(dir * Math.PI/180) * radius
+      return this
    }
 }
