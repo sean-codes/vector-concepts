@@ -19,6 +19,8 @@ class Scene {
       this.debugPos = new Vector(20, 0)
       this.mouse = {
          pos: new Vector(0, 0),
+         old: new Vector(0, 0),
+         speed: new Vector(0, 0),
          down: false,
 			up: false
       }
@@ -68,6 +70,7 @@ class Scene {
       this.step()
       this.drawDebugList()
       this.mouse.up = false
+      this.mouse.speed = new Vector()
    }
 
    stop(){
@@ -177,8 +180,9 @@ class Scene {
 	// Inputs
 	//---------------------------------------------------------------------------
    mousemove(x, y) {
-      this.mouse.pos.setX(x)
-      this.mouse.pos.setY(y)
+      this.mouse.old = this.mouse.pos.clone()
+      this.mouse.pos.set(x, y)
+      this.mouse.speed = this.mouse.pos.clone().min(this.mouse.old)
    }
 
    mousedown() {
