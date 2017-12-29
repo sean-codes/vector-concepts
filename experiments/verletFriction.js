@@ -1,7 +1,7 @@
 var scene = new Scene()
 var settings = new Settings()
 settings.add({ name: 'grav', min: -1, max: 1, value: 0.05 })
-settings.add({ name: 'f', min: 0.9, max: 1, value: 0.999 })
+settings.add({ name: 'friction', min: 0.9, max: 1, value: 0.999 })
 var boxes = [
    //new Box(scene.center(), 50),
    //new Box(scene.center().add(new Vector(50, 0)), 50)
@@ -123,7 +123,7 @@ function Point(pos) {
    }
 
    this.move = function() {
-      var velocity = this.velocity().add(new Vector(0, settings.read('grav'))).scale(settings.read('f'))
+      var velocity = this.velocity().add(new Vector(0, settings.read('grav'))).scale(settings.read('friction'))
       this.old = this.pos.clone()
       this.pos.add(velocity)
 
