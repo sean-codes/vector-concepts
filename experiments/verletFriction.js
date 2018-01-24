@@ -3,12 +3,13 @@ var settings = new Settings()
 settings.add({ name: 'grav', min: -1, max: 1, value: 0.05 })
 settings.add({ name: 'friction', min: 0.9, max: 1, value: 0.999 })
 var boxes = [
-   //new Box(scene.center(), 50),
-   //new Box(scene.center().add(new Vector(50, 0)), 50)
+   new Box(scene.center(), 25),
+   new Box(scene.center().add(new Vector(50, 0)), 25)
 ]
 
 var drag = { point: undefined, distance: 40 }
 scene.step = function() {
+   scene.debug('Click to create a box')
    for(var box0 in boxes) {
       boxes[box0].draw()
       boxes[box0].move()
