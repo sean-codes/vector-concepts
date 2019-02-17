@@ -9,7 +9,7 @@
          <canvas width="500"; height="225"></canvas>
          <settings></settings>
       </display>
-      <a href="https://github.com/sean-codes/vector-concepts">view source<img src="./github.png"></a>
+      <a href="https://github.com/sean-codes/vector-concepts" id="viewsource-link">view source<img src="./github.png"></a>
       <script src="resources/Scene.js"></script>
       <script src="resources/Vector.js"></script>
       <script src="resources/Shapes.js"></script>
@@ -58,15 +58,22 @@
             document.body.appendChild(script)
 
             // Load all the links
-            for( var experiment of experiments ) {
+            for (var experiment of experiments) {
                var button = document.createElement('button')
                button.innerHTML = experiment.title
                button.dataset.src = experiment.src
-               if(script.src.endsWith(experiment.src)) button.classList.add('active')
+               if (script.src.endsWith(experiment.src)) {
+                  button.classList.add('active')
+
+                  var htmlViewSourceLink = document.getElementById('viewsource-link')
+                  htmlViewSourceLink.href += '/tree/master' + experiment.src
+               }
+
                button.onclick = function() {
                   window.location.hash = this.dataset.src
                   window.location.reload()
                }
+
                document.body.appendChild(button)
             }
          }
