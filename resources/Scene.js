@@ -64,6 +64,7 @@ class Scene {
          this.loop()
       }, this.speed)
    }
+   
    loop() {
       this.debugPos = this.debugPos.set(10, 0)
       this.clear()
