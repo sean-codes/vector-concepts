@@ -4,21 +4,17 @@
 ![Example GIF](https://raw.githubusercontent.com/sean-codes/vector-concepts/master/example.gif?v=2)
 
 View Experiments: [Experiments](https://sean-codes.github.io/vector-concepts/)
-## ⚔️ Gear
-- Vector.js - 2D Vector Math
-- Scene.js - Holds the scene for drawing and handling input events
-- Shape.js - Constructor for storing shape points and how to draw each
 
 ## 🗺 Explored
 - Scene setup / Loop
 - Unit Circle
 - SIN/COS/TAN
-- Basic Vector Setup ( Adding, Subtracting, Scale, Distance )
+- Basic Vector Math ( Adding, Subtracting, Scale, Distance )
 - Rotation
 - Dot Product
-- Projection
-- Axis Aligned Bounding Box Collision
-- Separate Axis Collisions
+- Projection with Dot Product
+- Axis Aligned Bounding Box Collision (AABB)
+- Separate Axis Collisions (SAT)
 
 ## 📙 Journal
 
@@ -36,16 +32,6 @@ Degree to Radian
    var rad = deg * Math.PI/180
 ```
 
-#### Cartesian vs Polar Coordinates
-If you use the x- and y-coordinates, you are using Cartesian coordinates. If you use the angle and length of the vector, you are using polar coordinates.
-
-Getting the X/Y coordiantes from length and angle ( Converting Polar to Cartesian )
-``` js
-    // To get the x and y cordinate of length and angle
-    var x = length * Math.cos(angle / (180/Math.PI))
-    var y = length * Math.sin(angle / (180/Math.PI))
-```
-
 ### Sin, Cos, Tan are ratios
 When thinking about sin, cos, tan it can be intuitive to think of the unit circle and solve a triangle using the ratios
 
@@ -55,26 +41,35 @@ cos: From -1 to 1 the X
 tan: can go above 1. the heigth of the wall
 ```
 
+#### Cartesian vs Polar
+**Cartesian**: using x/y to define a position
+
+**Polar**: Using angle and length to define a position
+
+##### Polar to Cartesian conversion. angle and length to (x, y):
+``` js
+ var x = length * Math.cos(angle)
+ var y = length * Math.sin(angle)
+```
+
 ### DOT Product
 
 The most mystical equation
 ```js
-   dot = vector1.x * vector2.x + vector1.y * vector2.y
+var dot = vector1.x * vector2.x + vector1.y * vector2.y
 ```
 
 The dot product gives us a relationship of two vectors. It is useful for finding the angle
 
-### Finding the angle between two vectors using DOT Product
+##### Finding the angle between two vectors using DOT Product
 
-The angle is equal to the DOT product of the vectors devided by their lengths multiplied
-
-
+The angle is equal to the DOT product of the vectors divided by their lengths multiplied
 
 ```js
-   //COS(Angle) = DOT(V1, V2) / (V1.length * V2.length)
-   var dot = vector1.dot(vector2)
-   var cosAngle = dot / (vector1.length() * vector2.length())  // -1 to 1
-   var angle = acos(cosAngle) // 180 - 0
+// cos(Angle) = dot(V1, V2) / (v1.length * v2.length)
+var dot = vector1.dot(vector2)
+var cosAngle = dot / (vector1.length() * vector2.length())  // -1 to 1
+var angle = acos(cosAngle) // 180 - 0
 ```
 
 
