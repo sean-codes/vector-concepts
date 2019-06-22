@@ -2,9 +2,14 @@ class Vector {
    constructor(x=0, y=0) {
       this.set(x, y)
    }
+
    copy(vect) {
       this.x = vect.x
       this.y = vect.y
+   }
+
+   clone() {
+      return new Vector(this.x, this.y)
    }
 
    set(x, y){
@@ -64,10 +69,7 @@ class Vector {
 	}
 
    cross() {
-      var save = this.x
-      this.x = -this.y
-      this.y = save
-      return this
+      return new Vector(-this.y, this.x)
    }
 
    unit() {
@@ -92,11 +94,11 @@ class Vector {
       return n.scale(dot*2).min(this)
    }
 
-   clone() {
-      return new Vector(this.x, this.y)
+   direction(v2) {
+      return v2.clone().min(this).unit()
    }
 
-   direction() {
+   angle() {
       return 180 + Math.atan2(this.y*-1, this.x*-1) * 180/Math.PI
    }
 
