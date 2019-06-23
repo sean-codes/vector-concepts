@@ -56,6 +56,7 @@ scene.step = function() {
             var tan = new Vector(-dir.y, dir.x)
 
             // E = effect. read: c0 effect on c0 / c0 effect on c1
+            // FOR MEMORY: odst: other direction - self tangnet
             var c0Ec0 = tan.clone().scale(c0.vel.dot(tan))
             var c0Ec1 = dir.clone().scale(c0.vel.dot(dir))
 
