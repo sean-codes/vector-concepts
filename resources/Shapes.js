@@ -40,7 +40,7 @@ class Shape {
          var radius = point.distance(origin)
 
          // 2. Find the new angle
-         var newAngle = point.clone().min(origin).direction() + angle
+         var newAngle = point.clone().min(origin).angle() + angle
 
          // 3. Set the new cartesian
          point.x = Math.cos(newAngle * Math.PI/180) * radius + origin.x
