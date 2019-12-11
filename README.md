@@ -1,9 +1,9 @@
 # vector-concepts
-> This is a repository I use to adventure, explore, and understand geometry / vector mathmatics.
+> A repository I use to adventure, explore, and understand geometry / vector mathematics.
 
 ![Example GIF](https://raw.githubusercontent.com/sean-codes/vector-concepts/master/example.gif?v=2)
 
-View Experiments: [Experiments](https://sean-codes.github.io/vector-concepts/)
+View Experiments: [click here](https://sean-codes.github.io/vector-concepts/)
 
 ## 🗺 Explored
 - Scene setup / Loop
