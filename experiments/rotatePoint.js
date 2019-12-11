@@ -1,7 +1,7 @@
 var scene = new Scene(document.querySelector('canvas'))
 var circle = new Circle(scene.width/2, scene.height/2, 10)
 var circleGhost = new Circle(scene.width/2, scene.height/2, 10)
-var gravity = new Circle(scene.width/2, scene.height/2, 5)
+var gravity = new Circle(scene.width/2 + 50, scene.height/2, 5)
 var angle = 0
 var vCenter = new Vector(scene.width/2, scene.height/2)
 gravity.colorFill = '#D44'
@@ -13,7 +13,7 @@ scene.addShape(gravity)
 
 scene.step = function(){
    scene.clear()
-   angle += 10
+   angle += 3
    if(angle == 360){ angle = 1 }
    if(scene.mouse.down){
       scene.keys[32]
