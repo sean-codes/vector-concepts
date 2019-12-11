@@ -32,13 +32,14 @@ scene.step = function() {
    }
 
    if(drag.point){
+      scene.debugCircle(drag.point, 5, '#F22')
       if(!scene.mouse.down) {
          drag = { point: undefined, distance: 40 }
       }
       if(scene.mouse.down) {
          drag.point.add(scene.mouse.pos.clone().min(drag.point).scale(0.5))
       }
-      scene.debugCircle(drag.point, 5, '#F22')
+
    } else if(!drag.point && scene.mouse.up){
       boxes.push(new Box(scene.mouse.pos, 40))
    }

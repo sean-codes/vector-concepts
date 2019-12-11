@@ -130,7 +130,7 @@ function boxCollisionAndResponse(box1, box2) {
    for(var edge of edges) {
       // Axis Information
       var axis = edge.points[1].pos.clone().min(edge.points[0].pos)
-      var axisNorm = axis.normal()
+      var axisNorm = axis.normal(new Vector(0, 0))
       // Mins / Maxs
       var box1min = 9999
       var box1max = 0
