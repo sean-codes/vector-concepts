@@ -27,7 +27,7 @@ scene.step = function(){
       scene.drawShape(shape)
    }
    var mouseDir = this.mouse.pos.clone().min(vCenter).unit()
-   var mouseDirDegree = mouseDir.direction()
+   var mouseDirDegree = mouseDir.angle()
 
    // Move Sin/Cos
    circleSin.points[0].y = mouseDir.y * 50 + vCenter.y
@@ -48,6 +48,11 @@ scene.step = function(){
    this.ctx.beginPath()
    this.ctx.lineTo(vCenter.x, vCenter.y)
    this.ctx.lineTo(mouseDir.x*50+ vCenter.x, mouseDir.y*50 + vCenter.y)
+   this.ctx.stroke()
+
+   this.ctx.beginPath()
+   this.ctx.lineTo(vCenter.x, vCenter.y)
+   this.ctx.lineTo(vCenter.x + 50, vCenter.y)
    this.ctx.stroke()
 
    // Info
