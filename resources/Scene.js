@@ -8,12 +8,12 @@ class Scene {
          this.canvas = document.querySelector('canvas')
       }
       this.canvas.tabIndex = 1
-		this.ctx = this.canvas.getContext('2d')
+      this.ctx = this.canvas.getContext('2d')
       this.ctx.lineWidth = 2
-		this.width = this.canvas.width
-		this.height = this.canvas.height
-		this.speed = 1000/60
-		this.interval = undefined
+      this.width = this.canvas.width
+      this.height = this.canvas.height
+      this.speed = 1000/60
+      this.interval = undefined
 
       this.shapes = []
       this.debugPos = new Vector(20, 0)
@@ -22,14 +22,14 @@ class Scene {
          old: new Vector(0, 0),
          speed: new Vector(0, 0),
          down: false,
-			up: false
+        up: false
       }
 
       this.listen()
 
       this.keys = {}
       this.start()
-		this.debugQueue = []
+      this.debugQueue = []
    }
 
    listen(){

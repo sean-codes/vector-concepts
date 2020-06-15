@@ -2,8 +2,8 @@ class Shape {
    constructor(color){
       this.points = []
       this.direction = 0
-		this.colorFill = color || 'transparent'
-		this.colorStroke = color || '#000'
+      this.colorFill = color || 'transparent'
+      this.colorStroke = color || '#000'
       this.unique = Math.random()
       this.type = 'Shape'
       this.id = Math.random()
@@ -169,10 +169,10 @@ class Circle extends Shape{
       ctx.beginPath()
       ctx.arc(this.points[0].x, this.points[0].y, this.radius, 0, 2*Math.PI);
 
-		ctx.fillStyle = this.colorFill
-		ctx.fill()
+      ctx.fillStyle = this.colorFill
+      ctx.fill()
 
-		ctx.strokeStyle = this.colorStroke
+      ctx.strokeStyle = this.colorStroke
       ctx.stroke()
-   }
+    }
 }

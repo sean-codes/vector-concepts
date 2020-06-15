@@ -17,6 +17,12 @@ class Vector {
       this.setY(y)
       return this
    }
+   
+   copy(v) {
+      this.x = v.x
+      this.y = v.y
+      return this
+   }
 
    setX(x) {
       this.x = x
@@ -115,4 +121,19 @@ class Vector {
       this.y += Math.sin(dir * Math.PI/180) * radius
       return this
    }
+   
+   turn(radians) {
+      // cs-sc
+      return new Vector(
+         this.x * Math.cos(radians) - this.y * Math.sin(radians),
+         this.x * Math.sin(radians) + this.y * Math.cos(radians)
+      )
+   }
+   
+   flip() {
+      this.x *= -1
+      this.y *= -1
+      return this
+   }
+   
 }
